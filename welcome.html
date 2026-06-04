@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>¡Bienvenido a Glowcheck!</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ════ META PIXEL ════ Sustituye '1326485045591575' por el mismo ID que en index.html -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1326485045591575');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1326485045591575&ev=PageView&noscript=1"/></noscript>
+<!-- ════ FIN META PIXEL ════ -->
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -227,8 +244,8 @@ body{
 <!-- ── SUCCESS BANNER ── -->
 <section class="banner">
   <div class="success-icon">✓</div>
-  <h1>¡Listo, Clínica Renacimiento!</h1>
-  <p>Tu suscripción al <b>Pack Pro</b> está activa. Te hemos enviado el recibo a <b>clientes@clinicarenacimiento.es</b>.</p>
+  <h1>¡Bienvenido a Glowcheck!</h1>
+  <p>Tu <b id="planName">Pack</b> está activo. Recibirás el recibo en tu email en los próximos minutos.</p>
 </section>
 
 <div class="wrap">
@@ -297,18 +314,45 @@ body{
   <!-- ── RECIBO ── -->
   <div class="receipt">
     <div class="receipt-info">
-      <span class="receipt-lbl">Recibo nº GC-2026-0042</span>
-      <span class="receipt-detail">Pack Pro · 349€/mes</span>
+      <span class="receipt-lbl">Suscripción mensual</span>
+      <span class="receipt-detail"><span id="planNameReceipt">Pack</span> · <span id="planPrice">--</span></span>
     </div>
-    <span class="receipt-link">Enviado por email ✓</span>
+    <span class="receipt-link">Recibo enviado por email ✓</span>
   </div>
 
 </div>
 
 <script>
+// Lee el plan y el valor de la URL (?plan=basic&v=39 o ?plan=pro&v=349)
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const plan = params.get('plan');
+  const value = parseFloat(params.get('v')) || 0;
+
+  const planMap = {
+    basic: { name: 'Pack Básico', price: '39€/mes' },
+    pro:   { name: 'Pack Pro',    price: '349€/mes' }
+  };
+
+  if (plan && planMap[plan]) {
+    document.getElementById('planName').textContent = planMap[plan].name;
+    document.getElementById('planNameReceipt').textContent = planMap[plan].name;
+    document.getElementById('planPrice').textContent = planMap[plan].price;
+  }
+
+  // Meta Pixel Purchase event (server-side recomendado para producción)
+  if (typeof fbq !== 'undefined' && value > 0) {
+    fbq('track', 'Purchase', {
+      value: value,
+      currency: 'EUR',
+      content_name: plan === 'pro' ? 'Pack Pro' : 'Pack Básico'
+    });
+  }
+})();
+
 function contactEmail(e){
   e.preventDefault();
-  alert('Mockup: aquí abriría el cliente de email con un asunto pre-rellenado tipo "Preferencias para mi ficha — Clínica Renacimiento".');
+  window.location.href = 'mailto:clientes@glowcheck.es?subject=Preferencias%20para%20mi%20ficha';
 }
 </script>
 

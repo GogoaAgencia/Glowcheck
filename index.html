@@ -6,6 +6,23 @@
 <title>Glowcheck — Más pacientes para tu clínica estética</title>
 <meta name="description" content="La plataforma especializada en captación de pacientes para clínicas y centros estéticos. Sin permanencia. Alta en menos de 24 horas.">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ════ META PIXEL ════ Sustituye '1326485045591575' por tu ID real (16 dígitos) -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1326485045591575');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1326485045591575&ev=PageView&noscript=1"/></noscript>
+<!-- ════ FIN META PIXEL ════ -->
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -635,12 +652,29 @@ body{
 
 <script>
 function toggleFaq(el){ el.classList.toggle('open'); }
+
 function goCheckout(plan){
-  // Aquí irá la lógica Next.js → /onboarding?plan=basic|pro → Stripe Checkout
-  alert('Mockup: aquí el flujo Next.js abriría /onboarding?plan='+plan+' → formulario mínimo → Stripe Checkout');
+  const urls = {
+    basic: 'https://buy.stripe.com/5kQ9AT7VUazEgxc6DsgQE06',
+    pro:   'https://buy.stripe.com/4gM8wP3FEazEgxc2ncgQE07'
+  };
+  // Tracking opcional: dispara evento InitiateCheckout antes de redirigir
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'InitiateCheckout', {
+      content_name: plan === 'pro' ? 'Pack Pro' : 'Pack Básico',
+      value: plan === 'pro' ? 349 : 39,
+      currency: 'EUR'
+    });
+  }
+  window.location.href = urls[plan];
 }
+
 function goTalk(){
-  alert('Mockup: aquí abriría WhatsApp directo con mensaje pre-rellenado, o un calendario tipo Calendly');
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'Contact', { content_name: 'Pack Pro - hablar primero' });
+  }
+  const msg = encodeURIComponent('Hola, estoy interesado en el Pack Pro de Glowcheck y me gustaría hablar antes de contratar.');
+  window.location.href = 'https://wa.me/34618792084?text=' + msg;
 }
 
 // Sticky CTA: visible solo cuando aporta (después del hero, fuera de la sección packs)
