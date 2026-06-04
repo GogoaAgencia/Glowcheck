@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Bienvenido a Glowcheck!</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --yellow:#F5E862; --yellow-d:#C8BC10;
+  --lavender:#D4BFFF; --lav-mid:#A48FD8; --lav-dark:#5E3EAD;
+  --cream:#FFFDF5; --white:#FFFFFF;
+  --dark:#16162A; --dark2:#1E1E38; --mid:#52526A; --light-bg:#F8F6FF;
+  --border:#E5E0F2; --success:#3DAB6F;
+}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--cream); color:var(--dark);
+  line-height:1.6; font-size:15px; min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── HEADER ── */
+.head{
+  background:var(--dark); color:var(--white);
+  padding:14px 22px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.head-logo{font-size:18px; font-weight:800; letter-spacing:-0.4px;}
+.head-logo span{color:var(--lavender);}
+.head-status{
+  font-size:12px; color:rgba(255,255,255,0.85);
+  background:rgba(61,171,111,0.18); border:1px solid rgba(61,171,111,0.35);
+  padding:4px 10px; border-radius:100px; font-weight:500;
+}
+
+/* ── SUCCESS BANNER ── */
+.banner{
+  background:linear-gradient(135deg, #C9F2DC 0%, #E8FBE3 100%);
+  padding:36px 22px 32px;
+  text-align:center; position:relative; overflow:hidden;
+}
+.banner::before{
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:200px; height:200px; background:var(--yellow);
+  border-radius:50%; opacity:0.20;
+}
+.success-icon{
+  width:64px; height:64px; border-radius:50%;
+  background:var(--success); color:var(--white);
+  display:flex; align-items:center; justify-content:center;
+  font-size:30px; font-weight:800; margin:0 auto 16px;
+  position:relative; z-index:2;
+  animation:pop .5s ease-out;
+}
+@keyframes pop {
+  0%{transform:scale(0.4); opacity:0;}
+  60%{transform:scale(1.1);}
+  100%{transform:scale(1); opacity:1;}
+}
+.banner h1{
+  font-size:30px; font-weight:800; line-height:1.15;
+  letter-spacing:-0.8px; margin-bottom:8px;
+  position:relative; z-index:2;
+}
+.banner p{
+  font-size:14px; color:#2A5A40; font-weight:400;
+  max-width:440px; margin:0 auto;
+  position:relative; z-index:2;
+}
+.banner p b{font-weight:700;}
+
+/* ── LAYOUT ── */
+.wrap{
+  max-width:520px; margin:0 auto;
+  padding:32px 22px 60px;
+}
+
+/* ── TIMELINE ── */
+.timeline-title{
+  font-size:11px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--lav-mid); margin-bottom:14px; display:block;
+}
+.timeline{
+  background:var(--white); border-radius:14px;
+  padding:22px; border:1.5px solid var(--border);
+  margin-bottom:32px;
+}
+.tl-item{
+  display:flex; gap:14px; padding:10px 0;
+  position:relative;
+}
+.tl-item:not(:last-child)::after{
+  content:''; position:absolute;
+  left:11px; top:36px; bottom:-10px;
+  width:2px; background:var(--border);
+}
+.tl-dot{
+  width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; flex-shrink:0; margin-top:1px;
+  position:relative; z-index:2;
+}
+.tl-dot.done{background:var(--success); color:var(--white);}
+.tl-dot.now{background:var(--yellow); color:var(--dark); box-shadow:0 0 0 4px rgba(245,232,98,0.25);}
+.tl-dot.next{background:var(--border); color:var(--mid);}
+.tl-content{flex:1; padding-bottom:4px;}
+.tl-title{
+  font-size:14px; font-weight:700; margin-bottom:2px;
+  letter-spacing:-0.1px;
+}
+.tl-title.done{color:var(--mid);}
+.tl-meta{
+  font-size:11px; font-weight:600; color:var(--lav-mid);
+  text-transform:uppercase; letter-spacing:1px; margin-left:8px;
+}
+.tl-desc{font-size:12px; color:var(--mid); line-height:1.55;}
+
+/* ── COMPLETAR FICHA CARD ── */
+.action-card{
+  background:var(--dark); color:var(--white);
+  border-radius:14px; padding:24px 22px;
+  margin-bottom:20px;
+  position:relative; overflow:hidden;
+}
+.action-card::before{
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:140px; height:140px; background:var(--yellow);
+  border-radius:50%; opacity:0.08;
+}
+.action-card-tag{
+  display:inline-block; background:var(--yellow); color:var(--dark);
+  font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+  padding:3px 11px; border-radius:100px; margin-bottom:12px;
+}
+.action-card h2{
+  font-size:20px; font-weight:700; line-height:1.25;
+  letter-spacing:-0.4px; margin-bottom:8px;
+  position:relative; z-index:2;
+}
+.action-card p{
+  font-size:13px; color:rgba(255,255,255,0.85); font-weight:300;
+  line-height:1.6; margin-bottom:18px;
+  position:relative; z-index:2;
+}
+.action-list{
+  display:flex; flex-direction:column; gap:8px;
+  margin-bottom:20px;
+  position:relative; z-index:2;
+}
+.action-list li{
+  list-style:none; display:flex; align-items:center; gap:10px;
+  font-size:13px; color:rgba(255,255,255,0.92);
+}
+.action-list .dot{
+  width:18px; height:18px; border-radius:50%;
+  background:var(--yellow); color:var(--dark);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; flex-shrink:0;
+}
+.action-cta{
+  background:var(--yellow); color:var(--dark);
+  font-family:inherit; font-size:15px; font-weight:700;
+  padding:14px 22px; border-radius:11px;
+  border:none; cursor:pointer; width:100%;
+  letter-spacing:-0.2px; position:relative; z-index:2;
+  transition:transform .15s, box-shadow .15s;
+}
+.action-cta:hover{transform:translateY(-2px); box-shadow:0 8px 20px -6px rgba(245,232,98,0.5);}
+.action-secondary{
+  font-size:12px; color:rgba(255,255,255,0.65);
+  text-align:center; margin-top:12px;
+  position:relative; z-index:2;
+  text-decoration:none; display:block;
+}
+.action-secondary:hover{color:var(--yellow);}
+.action-secondary u{text-decoration:underline;}
+
+/* ── EMAIL NOTICE CARD ── */
+.notice-card{
+  background:var(--white); border-radius:12px;
+  padding:18px 20px; border:1.5px solid var(--border);
+  display:flex; gap:14px; align-items:flex-start;
+  margin-bottom:20px;
+}
+.notice-ico{
+  width:38px; height:38px; border-radius:10px;
+  background:var(--light-bg); display:flex;
+  align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.notice-content{flex:1;}
+.notice-title{font-size:13px; font-weight:700; margin-bottom:4px; letter-spacing:-0.1px;}
+.notice-text{font-size:12px; color:var(--mid); line-height:1.55;}
+.notice-text b{color:var(--lav-dark); font-weight:600;}
+
+/* ── RECEIPT ── */
+.receipt{
+  margin-top:24px; padding:14px 18px;
+  background:var(--light-bg); border-radius:11px;
+  border:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:12px;
+}
+.receipt-info{display:flex; flex-direction:column; gap:2px;}
+.receipt-lbl{color:var(--mid);}
+.receipt-detail{font-weight:600; color:var(--dark);}
+.receipt-link{
+  font-size:12px; color:var(--success); font-weight:600;
+}
+
+@media (min-width:640px){
+  .banner{padding:48px 40px 44px;}
+  .banner h1{font-size:36px;}
+  .wrap{padding:40px 22px 80px;}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <span class="head-logo">Glow<span>✓</span>check</span>
+  <span class="head-status">Suscripción activa ✓</span>
+</header>
+
+<!-- ── SUCCESS BANNER ── -->
+<section class="banner">
+  <div class="success-icon">✓</div>
+  <h1>¡Listo, Clínica Renacimiento!</h1>
+  <p>Tu suscripción al <b>Pack Pro</b> está activa. Te hemos enviado el recibo a <b>clientes@clinicarenacimiento.es</b>.</p>
+</section>
+
+<div class="wrap">
+
+  <!-- ── TIMELINE ── -->
+  <span class="timeline-title">Qué pasa ahora</span>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <div class="tl-title done">Pago confirmado <span class="tl-meta">hoy</span></div>
+        <div class="tl-desc">Suscripción activa. Recibirás el recibo en tu email en los próximos minutos.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot now">2</div>
+      <div class="tl-content">
+        <div class="tl-title">Montamos tu ficha <span class="tl-meta">ya en marcha</span></div>
+        <div class="tl-desc">Cogemos las fotos y la info de tus redes sociales. Nos pondremos en contacto si necesitamos algo más.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot next">3</div>
+      <div class="tl-content">
+        <div class="tl-title">Tu ficha entra en directo <span class="tl-meta">en 24h</span></div>
+        <div class="tl-desc">Te avisamos por email con el enlace a tu perfil en glowcheck.es.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot next">4</div>
+      <div class="tl-content">
+        <div class="tl-title">Empiezas a recibir pacientes <span class="tl-meta">a partir del día 2</span></div>
+        <div class="tl-desc">Los pacientes te contactan directamente por WhatsApp o teléfono desde tu ficha.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── NOSOTROS NOS ENCARGAMOS ── -->
+  <div class="action-card">
+    <div class="action-card-tag">Nosotros nos encargamos</div>
+    <h2>Tú no tienes que hacer nada.</h2>
+    <p>Para que no pierdas tiempo, montamos tu ficha por ti usando lo que ya tienes en redes sociales y la información que nos has dado:</p>
+    <ul class="action-list">
+      <li><span class="dot">✓</span> Cogemos las fotos de tu Instagram</li>
+      <li><span class="dot">✓</span> Redactamos descripción y servicios</li>
+      <li><span class="dot">✓</span> Configuramos contacto a tu WhatsApp</li>
+      <li><span class="dot">✓</span> Te avisamos cuando esté en directo</li>
+    </ul>
+    <a href="#" class="action-secondary" onclick="contactEmail(event)">Si necesitas que usemos otras fuentes o tienes preferencias, <u>escríbenos a clientes@glowcheck.es</u></a>
+  </div>
+
+  <!-- ── CONTACTO / GESTIÓN ── -->
+  <div class="notice-card">
+    <div class="notice-ico">📧</div>
+    <div class="notice-content">
+      <div class="notice-title">¿Necesitas cambiar algo en tu suscripción?</div>
+      <div class="notice-text">Para cancelar, pausar o cambiar de plan, escríbenos a <b>clientes@glowcheck.es</b> y te lo gestionamos en el momento.</div>
+    </div>
+  </div>
+
+  <!-- ── RECIBO ── -->
+  <div class="receipt">
+    <div class="receipt-info">
+      <span class="receipt-lbl">Recibo nº GC-2026-0042</span>
+      <span class="receipt-detail">Pack Pro · 349€/mes</span>
+    </div>
+    <span class="receipt-link">Enviado por email ✓</span>
+  </div>
+
+</div>
+
+<script>
+function contactEmail(e){
+  e.preventDefault();
+  alert('Mockup: aquí abriría el cliente de email con un asunto pre-rellenado tipo "Preferencias para mi ficha — Clínica Renacimiento".');
+}
+</script>
+
+</body>
+</html>
