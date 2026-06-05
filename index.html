@@ -300,92 +300,47 @@ body{
 .compat h4{font-size:15px; font-weight:700; margin-bottom:4px; color:var(--dark);}
 .compat p{font-size:13px; color:rgba(0,0,0,0.7); line-height:1.55;}
 
-/* ─── FICHA PREVIEW (showcase IG-style) ─── */
+/* ─── FICHA PREVIEW (showcase clean, 3 cards) ─── */
 .preview{background:var(--cream); padding:60px 22px 80px;}
 .preview .section-inner{text-align:center;}
 
 .showcase{
   position:relative;
-  max-width:880px; margin:36px auto 0;
-  min-height:520px;
+  max-width:1040px; margin:36px auto 0;
   display:flex; align-items:center; justify-content:center;
 }
 
-/* Card principal estilo Instagram */
+/* Card principal: ficha de detalle (centrada) */
 .sc-main{
-  background:var(--white); border-radius:14px; overflow:hidden;
-  width:100%; max-width:380px;
+  width:100%; max-width:400px;
+  border-radius:18px; overflow:hidden;
   box-shadow:0 30px 70px -22px rgba(94,62,173,0.30), 0 8px 24px -10px rgba(22,22,42,0.12);
   border:1px solid rgba(164,143,216,0.18);
-  text-align:left; position:relative; z-index:2;
+  background:var(--white); position:relative; z-index:2;
 }
-.sc-header{
-  padding:11px 14px; display:flex; align-items:center; gap:10px;
-  border-bottom:1px solid #F2EEF9;
-}
-.sc-avatar{
-  width:32px; height:32px; border-radius:50%;
-  background:var(--dark); color:var(--white);
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px; font-weight:800; flex-shrink:0; position:relative;
-  border:2px solid var(--lavender);
-}
-.sc-avatar span{
-  position:absolute; top:-3px; right:-3px;
-  background:var(--lavender); color:var(--lav-dark);
-  width:14px; height:14px; border-radius:50%;
-  font-size:9px; display:flex; align-items:center; justify-content:center;
-  border:1.5px solid var(--white);
-}
-.sc-meta{flex:1; line-height:1.2; min-width:0;}
-.sc-meta strong{display:block; font-size:13px; color:var(--dark);}
-.sc-meta span{font-size:11px; color:var(--mid);}
-.sc-dots{color:var(--mid); font-size:18px; letter-spacing:1px;}
+.sc-main img{display:block; width:100%; height:auto;}
 
-.sc-image{position:relative; background:var(--light-bg);}
-.sc-image img{display:block; width:100%; height:auto;}
-
-.sc-cta{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:13px 18px; background:var(--white); cursor:default;
-  border-bottom:1px solid #F2EEF9;
-  font-size:14px; font-weight:600; color:var(--dark);
-}
-.sc-arrow{font-size:18px; color:var(--mid);}
-
-.sc-actions{
-  display:flex; align-items:center; gap:14px;
-  padding:12px 14px 6px;
-  font-size:18px; color:var(--dark);
-}
-.sc-actions > span:nth-child(3){margin-right:auto;}
-.sc-pag{font-size:10px !important; color:var(--lav-mid); letter-spacing:1px;}
-.sc-bookmark{font-size:16px;}
-.sc-caption{
-  padding:0 14px 14px;
-  font-size:13px; line-height:1.5; color:var(--dark);
-}
-.sc-caption strong{font-weight:700; margin-right:5px;}
-
-/* Side card (vista de listado) - solo desktop */
+/* Side cards (home y listado) - solo desktop */
 .sc-side{
-  position:absolute;
-  width:230px; border-radius:14px; overflow:hidden;
+  position:absolute; top:50%;
+  width:220px; border-radius:14px; overflow:hidden;
   box-shadow:0 24px 56px -18px rgba(94,62,173,0.32), 0 8px 22px -10px rgba(22,22,42,0.12);
   border:1px solid rgba(164,143,216,0.18);
   background:var(--white);
-  display:none; /* hidden por defecto; visible en desktop */
+  display:none; /* solo desktop ancho */
 }
 .sc-side img{display:block; width:100%; height:auto;}
 
-.sc-side-1{
-  top:50%; right:60px;
+.sc-side-left{
+  left:0;
+  transform:translateY(-50%) rotate(-4deg);
+}
+.sc-side-right{
+  right:0;
   transform:translateY(-50%) rotate(4deg);
-  z-index:1;
 }
 
-@media (min-width:900px){
-  .sc-main{max-width:400px; margin-right:180px;}
+@media (min-width:1000px){
   .sc-side{display:block;}
 }
 .test{padding:60px 22px;}
@@ -561,36 +516,19 @@ body{
     <p class="s-intro" style="margin-left:auto;margin-right:auto;">Una ficha profesional con tus datos, fotos y reseñas reales. La montamos nosotros con la información de tus redes.</p>
 
     <div class="showcase">
-      <!-- CARD PRINCIPAL estilo IG: la ficha de detalle -->
+      <!-- SIDE CARD IZQUIERDA: home de glowcheck.es -->
+      <aside class="sc-side sc-side-left">
+        <img src="glowcheck_home.png" alt="Página de inicio de glowcheck.es donde los pacientes buscan clínicas por servicio y ubicación">
+      </aside>
+
+      <!-- CARD PRINCIPAL: ficha de detalle -->
       <article class="sc-main">
-        <header class="sc-header">
-          <div class="sc-avatar">G<span>✓</span></div>
-          <div class="sc-meta">
-            <strong>glowcheck.es</strong>
-            <span>Caso real</span>
-          </div>
-          <span class="sc-dots">···</span>
-        </header>
-        <div class="sc-image">
-          <img src="olivia_perfil.png" alt="Ficha de detalle de Clínica Dra. Olivia Oomen en glowcheck.es con 4.9 estrellas en Google y 473 reseñas">
-        </div>
-        <div class="sc-cta">
-          <span>Descubrir</span>
-          <span class="sc-arrow">›</span>
-        </div>
-        <div class="sc-actions">
-          <span>♡</span><span>💬</span><span>↗</span>
-          <span class="sc-pag">● ○</span>
-          <span class="sc-bookmark">🔖</span>
-        </div>
-        <p class="sc-caption">
-          <strong>glowcheck.es</strong> Tu ficha lista con información, reseñas reales y contacto directo por WhatsApp. Todo lo que tus pacientes necesitan para elegirte.
-        </p>
+        <img src="olivia_perfil.png" alt="Ficha de detalle de Clínica Dra. Olivia Oomen en glowcheck.es con 4.9 estrellas en Google y 473 reseñas">
       </article>
 
-      <!-- SIDE CARD: cómo apareces en el listado de búsqueda -->
-      <aside class="sc-side sc-side-1">
-        <img src="olivia_listado.png" alt="Vista del listado de búsqueda en glowcheck.es: cómo aparece la clínica cuando los pacientes buscan tratamientos en su zona">
+      <!-- SIDE CARD DERECHA: cómo aparece en el listado -->
+      <aside class="sc-side sc-side-right">
+        <img src="olivia_listado.png" alt="Vista del listado en glowcheck.es: cómo aparece la clínica cuando los pacientes buscan tratamientos en su zona">
       </aside>
     </div>
   </div>
