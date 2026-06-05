@@ -300,48 +300,58 @@ body{
 .compat h4{font-size:15px; font-weight:700; margin-bottom:4px; color:var(--dark);}
 .compat p{font-size:13px; color:rgba(0,0,0,0.7); line-height:1.55;}
 
-/* ─── FICHA PREVIEW (showcase clean, 3 cards) ─── */
+/* ─── FICHA PREVIEW (showcase clean) ─── */
 .preview{background:var(--cream); padding:60px 22px 80px;}
 .preview .section-inner{text-align:center;}
 
 .showcase{
   position:relative;
   max-width:1040px; margin:36px auto 0;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; flex-direction:column;
+  align-items:center; gap:22px;
 }
 
-/* Card principal: ficha de detalle (centrada) */
+/* Card principal: ficha de detalle */
 .sc-main{
-  width:100%; max-width:400px;
+  width:100%; max-width:340px;
   border-radius:18px; overflow:hidden;
-  box-shadow:0 30px 70px -22px rgba(94,62,173,0.30), 0 8px 24px -10px rgba(22,22,42,0.12);
+  box-shadow:0 24px 60px -20px rgba(94,62,173,0.28), 0 8px 22px -10px rgba(22,22,42,0.12);
   border:1px solid rgba(164,143,216,0.18);
-  background:var(--white); position:relative; z-index:2;
+  background:var(--white);
+  order:3; /* perfil al final en stack mobile */
 }
 .sc-main img{display:block; width:100%; height:auto;}
 
-/* Side cards (home y listado) - solo desktop */
+/* Side cards (home y listado) */
 .sc-side{
-  position:absolute; top:50%;
-  width:220px; border-radius:14px; overflow:hidden;
-  box-shadow:0 24px 56px -18px rgba(94,62,173,0.32), 0 8px 22px -10px rgba(22,22,42,0.12);
+  width:100%; max-width:280px;
+  border-radius:14px; overflow:hidden;
+  box-shadow:0 18px 44px -16px rgba(94,62,173,0.26), 0 6px 18px -8px rgba(22,22,42,0.10);
   border:1px solid rgba(164,143,216,0.18);
   background:var(--white);
-  display:none; /* solo desktop ancho */
 }
 .sc-side img{display:block; width:100%; height:auto;}
+.sc-side-left{order:1;}   /* home primero */
+.sc-side-right{order:2;}  /* listado segundo */
 
-.sc-side-left{
-  left:0;
-  transform:translateY(-50%) rotate(-4deg);
-}
-.sc-side-right{
-  right:0;
-  transform:translateY(-50%) rotate(4deg);
-}
-
+/* Desktop: vuelta al layout de showcase con rotaciones */
 @media (min-width:1000px){
-  .sc-side{display:block;}
+  .showcase{
+    flex-direction:row; gap:0;
+    justify-content:center;
+  }
+  .sc-main{max-width:400px; order:0;}
+  .sc-side{
+    position:absolute; top:50%; max-width:220px;
+  }
+  .sc-side-left{
+    left:0; order:0;
+    transform:translateY(-50%) rotate(-4deg);
+  }
+  .sc-side-right{
+    right:0; order:0;
+    transform:translateY(-50%) rotate(4deg);
+  }
 }
 .test{padding:60px 22px;}
 .test-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:38px;}
@@ -516,20 +526,20 @@ body{
     <p class="s-intro" style="margin-left:auto;margin-right:auto;">Una ficha profesional con tus datos, fotos y reseñas reales. La montamos nosotros con la información de tus redes.</p>
 
     <div class="showcase">
-      <!-- SIDE CARD IZQUIERDA: home de glowcheck.es -->
+      <!-- 1. HOME: donde entran los pacientes -->
       <aside class="sc-side sc-side-left">
         <img src="glowcheck_home.png" alt="Página de inicio de glowcheck.es donde los pacientes buscan clínicas por servicio y ubicación">
       </aside>
 
-      <!-- CARD PRINCIPAL: ficha de detalle -->
-      <article class="sc-main">
-        <img src="olivia_perfil.png" alt="Ficha de detalle de Clínica Dra. Olivia Oomen en glowcheck.es con 4.9 estrellas en Google y 473 reseñas">
-      </article>
-
-      <!-- SIDE CARD DERECHA: cómo aparece en el listado -->
+      <!-- 2. LISTADO: resultado de la búsqueda -->
       <aside class="sc-side sc-side-right">
         <img src="olivia_listado.png" alt="Vista del listado en glowcheck.es: cómo aparece la clínica cuando los pacientes buscan tratamientos en su zona">
       </aside>
+
+      <!-- 3. PERFIL: la ficha de detalle donde contactan -->
+      <article class="sc-main">
+        <img src="olivia_perfil.png" alt="Ficha de detalle de Clínica Dra. Olivia Oomen en glowcheck.es con 4.9 estrellas en Google y 473 reseñas">
+      </article>
     </div>
   </div>
 </section>
