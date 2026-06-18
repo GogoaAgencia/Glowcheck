@@ -323,15 +323,19 @@ body{
 </div>
 
 <script>
-// Lee el plan y el valor de la URL (?plan=basic&v=39 o ?plan=pro&v=349)
+// Lee el plan y el valor de la URL (?plan=basic&v=19&promo=1 o ?plan=pro&v=349)
 (function(){
   const params = new URLSearchParams(window.location.search);
   const plan = params.get('plan');
   const value = parseFloat(params.get('v')) || 0;
+  const isPromo = params.get('promo') === '1';
 
   const planMap = {
-    basic: { name: 'Pack Básico', price: '39€/mes' },
-    pro:   { name: 'Pack Pro',    price: '349€/mes' }
+    basic: {
+      name: isPromo ? 'Pack Básico (Oferta)' : 'Pack Básico',
+      price: isPromo ? '19€ primer mes, luego 39€/mes' : '39€/mes'
+    },
+    pro: { name: 'Pack Pro', price: '349€/mes' }
   };
 
   if (plan && planMap[plan]) {
@@ -345,7 +349,7 @@ body{
     fbq('track', 'Purchase', {
       value: value,
       currency: 'EUR',
-      content_name: plan === 'pro' ? 'Pack Pro' : 'Pack Básico'
+      content_name: plan === 'pro' ? 'Pack Pro' : (isPromo ? 'Pack Básico - Oferta 19€' : 'Pack Básico')
     });
   }
 })();
@@ -354,19 +358,6 @@ function contactEmail(e){
   e.preventDefault();
   window.location.href = 'mailto:clientes@glowcheck.es?subject=Preferencias%20para%20mi%20ficha';
 }
-</script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2JD9Q3EJN4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2JD9Q3EJN4');
-</script>
-  <!-- Event snippet for Envío de formulario conversion page -->
-<script>
-  gtag('event', 'conversion', {'send_to': 'AW-11341761661/hUaiCOnAgO4YEP2YlqAq'});
 </script>
 
 </body>
