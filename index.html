@@ -289,6 +289,11 @@ body{
 .footer a{color:rgba(255,255,255,0.7); text-decoration:none;}
 .footer a:hover{color:var(--yellow);}
 
+/* Loading spinner for checkout buttons */
+.btn-spinner{display:inline-block; width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:btn-spin 0.7s linear infinite; vertical-align:middle; margin-right:10px; margin-bottom:1px;}
+@keyframes btn-spin{to{transform:rotate(360deg);}}
+.btn-loading{opacity:0.75; pointer-events:none; cursor:wait;}
+
 @media (min-width:768px){
   .nav{padding:16px 40px;}
   .hero{padding:88px 40px 92px;}
@@ -551,7 +556,7 @@ body{
           </ul>
 
           <div class="pack-cta-area">
-            <button class="btn-pack btn-pack-basic" onclick="goCheckout('basic')">Empezar por 19€ →</button>
+            <button class="btn-pack btn-pack-basic" onclick="goCheckout('basic', this)">Empezar por 19€ →</button>
             <p class="pack-guarantee"><b>Sin permanencia</b> · Activo en menos de 24 horas · Pago seguro Stripe</p>
           </div>
         </div>
@@ -726,7 +731,7 @@ body{
 </section>
 
 <div class="sticky-cta">
-  <a href="javascript:void(0)" onclick="goCheckout('basic')">Empezar por 19€ →</a>
+  <a href="javascript:void(0)" onclick="goCheckout('basic', this)">Empezar por 19€ →</a>
   <span class="note">Sin permanencia · Activo en 24h</span>
 </div>
 
@@ -738,11 +743,20 @@ body{
 <script>
 function toggleFaq(el){ el.classList.toggle('open'); }
 
-function goCheckout(plan){
+function goCheckout(plan, btn){
   const urls = {
     basic: 'https://buy.stripe.com/5kQ9AT7VUazEgxc6DsgQE06?prefilled_promo_code=OFERTA19',
     pro:   'https://buy.stripe.com/4gM8wP3FEazEgxc2ncgQE07'
   };
+
+  // Show loading state and prevent double-click
+  if (btn && !btn.dataset.loading) {
+    btn.dataset.loading = '1';
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="btn-spinner"></span>Cargando checkout...';
+    btn.classList.add('btn-loading');
+  }
+
   if (typeof fbq !== 'undefined') {
     fbq('track', 'InitiateCheckout', {
       content_name: plan === 'pro' ? 'Pack Pro' : 'Pack Básico - Oferta 19€',
@@ -752,6 +766,19 @@ function goCheckout(plan){
   }
   window.location.href = urls[plan];
 }
+
+// Pre-warm Stripe with the coupon so checkout loads instantly when user clicks
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try {
+      fetch('https://buy.stripe.com/5kQ9AT7VUazEgxc6DsgQE06?prefilled_promo_code=OFERTA19', {
+        mode: 'no-cors',
+        credentials: 'omit',
+        cache: 'force-cache'
+      }).catch(function(){ /* silent */ });
+    } catch(e){ /* silent */ }
+  }, 1500);
+});
 
 function goTalk(){
   if (typeof fbq !== 'undefined') {
