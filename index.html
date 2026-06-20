@@ -6,6 +6,14 @@
 <title>Glowcheck — 8 contactos al mes para tu clínica estética por 39€</title>
 <meta name="description" content="64.000 impresiones publicitarias y 8 contactos directos por WhatsApp al mes para tu clínica estética. Datos medidos. Sin permanencia. Activo en 24h.">
 
+<!-- ════ STRIPE PRECONNECT (faster checkout load) ════ -->
+<link rel="preconnect" href="https://buy.stripe.com" crossorigin>
+<link rel="preconnect" href="https://checkout.stripe.com" crossorigin>
+<link rel="preconnect" href="https://js.stripe.com" crossorigin>
+<link rel="preconnect" href="https://api.stripe.com" crossorigin>
+<link rel="dns-prefetch" href="https://buy.stripe.com">
+<link rel="dns-prefetch" href="https://checkout.stripe.com">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- ════ META PIXEL ════ -->
@@ -767,18 +775,8 @@ function goCheckout(plan, btn){
   window.location.href = urls[plan];
 }
 
-// Pre-warm Stripe with the coupon so checkout loads instantly when user clicks
-window.addEventListener('load', function(){
-  setTimeout(function(){
-    try {
-      fetch('https://buy.stripe.com/5kQ9AT7VUazEgxc6DsgQE06?prefilled_promo_code=OFERTA19', {
-        mode: 'no-cors',
-        credentials: 'omit',
-        cache: 'force-cache'
-      }).catch(function(){ /* silent */ });
-    } catch(e){ /* silent */ }
-  }, 1500);
-});
+// Pre-connection to Stripe is handled via <link rel="preconnect"> in <head>
+// That eliminates DNS lookup + TCP handshake + TLS negotiation latency (~300-500ms)
 
 function goTalk(){
   if (typeof fbq !== 'undefined') {
