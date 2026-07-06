@@ -8,6 +8,8 @@
 
 <!-- ════ STRIPE PRECONNECT (faster checkout load) ════ -->
 <link rel="preconnect" href="https://buy.stripe.com" crossorigin>
+<link rel="preconnect" href="https://www.loom.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.loom.com">
 <link rel="preconnect" href="https://checkout.stripe.com" crossorigin>
 <link rel="preconnect" href="https://js.stripe.com" crossorigin>
 <link rel="preconnect" href="https://api.stripe.com" crossorigin>
@@ -282,52 +284,26 @@ body{
 
 /* ─── VIDEO DEMO SECTION ─── */
 .video-demo{padding:70px 22px; background:var(--cream); position:relative;}
-.video-demo .section-inner{max-width:900px; margin:0 auto; text-align:center;}
+.video-demo .section-inner{max-width:1000px; margin:0 auto; text-align:center;}
 .video-demo .s-label{color:var(--lav-dark);}
 .video-demo .s-title{margin-bottom:14px;}
 .video-demo .s-intro{margin-bottom:36px;}
-.video-wrapper{max-width:820px; margin:0 auto;}
+.video-wrapper{max-width:920px; margin:0 auto;}
 
-/* Thumbnail clickable */
-.video-thumb{width:100%; border:none; padding:0; cursor:pointer; background:transparent; position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:20px; box-shadow:0 24px 60px -24px rgba(94,62,173,0.35); border:1px solid rgba(212,191,255,0.20); transition:transform .2s ease, box-shadow .2s ease; font-family:inherit; display:block;}
-.video-thumb:hover{transform:translateY(-3px); box-shadow:0 30px 70px -20px rgba(94,62,173,0.45);}
-.video-thumb:active{transform:translateY(-1px);}
-.video-thumb-bg{position:absolute; inset:0; background:linear-gradient(135deg, #16162A 0%, #1E1E38 55%, #3D2A80 100%); display:flex; align-items:center; justify-content:center; overflow:hidden;}
-.video-thumb-bg::before{content:''; position:absolute; top:-100px; right:-100px; width:340px; height:340px; background:#5E3EAD; border-radius:50%; opacity:0.25; filter:blur(20px);}
-.video-thumb-bg::after{content:''; position:absolute; bottom:-100px; left:-100px; width:280px; height:280px; background:#F5E862; border-radius:50%; opacity:0.10; filter:blur(30px);}
-.video-thumb-content{position:relative; z-index:2; text-align:center; color:white; padding:24px;}
-.video-play-btn{width:84px; height:84px; background:var(--yellow); color:var(--dark); border-radius:50%; font-size:30px; display:flex; align-items:center; justify-content:center; margin:0 auto 22px; padding-left:6px; animation:play-pulse 2s ease-in-out infinite; box-shadow:0 8px 24px rgba(245,232,98,0.35);}
-@keyframes play-pulse{0%,100%{transform:scale(1); box-shadow:0 8px 24px rgba(245,232,98,0.35);} 50%{transform:scale(1.08); box-shadow:0 14px 36px rgba(245,232,98,0.55);}}
-.video-thumb-title{font-size:26px; font-weight:800; letter-spacing:-0.6px; margin-bottom:8px; color:white;}
-.video-thumb-sub{font-size:14px; color:rgba(255,255,255,0.72); font-weight:500; letter-spacing:0.1px;}
+/* Frame with adaptive aspect ratio (set via JS from Loom's real dimensions; fallback 16/9) */
+.video-frame{position:relative; width:100%; aspect-ratio:16/9; border-radius:20px; overflow:hidden; box-shadow:0 24px 60px -24px rgba(94,62,173,0.35); border:1px solid rgba(212,191,255,0.20); background:#16162A;}
+.video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
 
 .video-note{margin-top:22px; font-size:14px; color:rgba(22,22,42,0.60);}
 .video-note a{color:var(--lav-dark); text-decoration:none; font-weight:600; letter-spacing:-0.2px; transition:opacity .15s;}
 .video-note a:hover{opacity:0.75;}
 
-/* Fullscreen modal */
-.video-modal{display:none; position:fixed; inset:0; z-index:100; background:rgba(15,15,30,0.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:20px; animation:modal-fade .2s ease;}
-.video-modal.active{display:flex;}
-@keyframes modal-fade{from{opacity:0;} to{opacity:1;}}
-.video-modal-content{position:relative; width:100%; max-width:1100px; animation:modal-zoom .25s cubic-bezier(0.16, 1, 0.3, 1);}
-@keyframes modal-zoom{from{transform:scale(0.95); opacity:0;} to{transform:scale(1); opacity:1;}}
-.video-modal-close{position:absolute; top:-52px; right:0; background:transparent; border:none; color:white; font-size:28px; cursor:pointer; padding:8px 14px; z-index:2; transition:opacity .15s; font-family:inherit; line-height:1;}
-.video-modal-close:hover{opacity:0.7;}
-.video-modal-container{position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:14px; background:#000; box-shadow:0 40px 100px -30px rgba(0,0,0,0.60);}
-.video-modal-container iframe{position:absolute; top:0; left:0; width:100%; height:100%;}
-
 @media (max-width:768px){
-  .video-demo{padding:50px 14px;}
+  .video-demo{padding:50px 10px;}
   .video-demo .section-inner{padding:0;}
   .video-wrapper{max-width:100%;}
-  .video-thumb{border-radius:14px;}
-  .video-play-btn{width:68px; height:68px; font-size:24px; margin-bottom:16px;}
-  .video-thumb-title{font-size:20px;}
-  .video-thumb-sub{font-size:12px;}
-  .video-note{margin-top:18px; font-size:13px;}
-  .video-modal{padding:12px;}
-  .video-modal-close{top:auto; bottom:calc(100% + 8px); right:0; font-size:26px;}
-  .video-modal-container{border-radius:12px;}
+  .video-frame{border-radius:14px;}
+  .video-note{margin-top:18px; font-size:13px; padding:0 12px;}
 }
 
 /* Loading spinner for checkout buttons */
@@ -425,16 +401,18 @@ body{
     <p class="s-intro">Un tour rápido por Glowcheck.es para que veas cómo funciona. <b>60 segundos.</b></p>
 
     <div class="video-wrapper">
-      <!-- Thumbnail que abre modal fullscreen al tocar -->
-      <button class="video-thumb" onclick="openVideoModal()" aria-label="Ver vídeo demo de Glowcheck">
-        <div class="video-thumb-bg">
-          <div class="video-thumb-content">
-            <div class="video-play-btn" aria-hidden="true">▶</div>
-            <div class="video-thumb-title">Ver Glowcheck en acción</div>
-            <div class="video-thumb-sub">Tour de 60 segundos · Toca para ver</div>
-          </div>
-        </div>
-      </button>
+      <!-- Player de Loom embebido directamente (lazy: carga al acercarse con el scroll) -->
+      <div class="video-frame" id="videoFrame">
+        <iframe
+          id="loomPlayer"
+          src="https://www.loom.com/embed/9f0b6bb39c484a04b8746d934ea3858a?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
+          loading="lazy"
+          frameborder="0"
+          allowfullscreen
+          allow="autoplay; fullscreen"
+          title="Demo Glowcheck — tour de 60 segundos">
+        </iframe>
+      </div>
       <p class="video-note">
         <a href="https://glowcheck.es" target="_blank" rel="noopener" onclick="trackDemoClick()">
           O explora Glowcheck.es directamente →
@@ -784,25 +762,6 @@ body{
   <span class="note">Sin permanencia · Activo en 24h</span>
 </div>
 
-<!-- ══ VIDEO MODAL (fullscreen) ══ -->
-<div class="video-modal" id="videoModal" onclick="closeVideoModal(event)">
-  <div class="video-modal-content">
-    <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Cerrar vídeo">✕</button>
-    <div class="video-modal-container">
-      <iframe
-        id="videoModalIframe"
-        src=""
-        frameborder="0"
-        webkitallowfullscreen
-        mozallowfullscreen
-        allowfullscreen
-        allow="autoplay; fullscreen"
-        title="Demo Glowcheck">
-      </iframe>
-    </div>
-  </div>
-</div>
-
 <footer class="footer">
   <div>© 2025 Glowcheck · <a href="#">Aviso legal</a> · <a href="#">Privacidad</a> · <a href="#">Cookies</a></div>
   <div>clientes@glowcheck.es</div>
@@ -822,39 +781,42 @@ function trackDemoClick(){
 
 const LOOM_VIDEO_ID = '9f0b6bb39c484a04b8746d934ea3858a';
 
-function openVideoModal(){
-  const modal = document.getElementById('videoModal');
-  const iframe = document.getElementById('videoModalIframe');
-  iframe.src = 'https://www.loom.com/embed/' + LOOM_VIDEO_ID + '?autoplay=1&hide_owner=true&hide_share=true&hide_title=true';
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-
-  if (typeof fbq !== 'undefined') {
-    fbq('trackCustom', 'VideoDemoPlay', { content_name: 'Glowcheck tour 60s' });
-  }
-  if (typeof gtag !== 'undefined') {
-    gtag('event', 'video_demo_play', { event_category: 'engagement' });
-  }
-}
-
-function closeVideoModal(event){
-  // Only close when clicking backdrop or the X button, not the content
-  if (event && event.target !== event.currentTarget && !event.target.closest('.video-modal-close')) return;
-
-  const modal = document.getElementById('videoModal');
-  const iframe = document.getElementById('videoModalIframe');
-  iframe.src = ''; // stops the video
-  modal.classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-// Close modal with ESC key
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('videoModal');
-    if (modal && modal.classList.contains('active')) closeVideoModal();
-  }
+// Adjust frame to the video's REAL aspect ratio (removes black side bars).
+// Falls back silently to 16:9 if the API is unreachable.
+window.addEventListener('load', function(){
+  try {
+    fetch('https://www.loom.com/v1/oembed?url=https%3A%2F%2Fwww.loom.com%2Fshare%2F' + LOOM_VIDEO_ID)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data && data.width && data.height) {
+          var frame = document.getElementById('videoFrame');
+          if (frame) frame.style.aspectRatio = data.width + ' / ' + data.height;
+        }
+      })
+      .catch(function(){ /* keep 16:9 fallback */ });
+  } catch(e){ /* keep 16:9 fallback */ }
 });
+
+// Track play intent: when the user clicks inside the Loom player,
+// window focus moves into the iframe — we detect it and fire the event once.
+(function(){
+  var tracked = false;
+  window.addEventListener('blur', function(){
+    if (tracked) return;
+    setTimeout(function(){
+      var el = document.activeElement;
+      if (el && el.id === 'loomPlayer') {
+        tracked = true;
+        if (typeof fbq !== 'undefined') {
+          fbq('trackCustom', 'VideoDemoPlay', { content_name: 'Glowcheck tour 60s' });
+        }
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'video_demo_play', { event_category: 'engagement' });
+        }
+      }
+    }, 0);
+  });
+})();
 
 function goCheckout(plan, btn){
   const urls = {
