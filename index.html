@@ -287,7 +287,7 @@ body{
 .video-demo .section-inner{max-width:1000px; margin:0 auto; text-align:center;}
 .video-demo .s-label{color:var(--lav-dark);}
 .video-demo .s-title{margin-bottom:14px;}
-.video-demo .s-intro{margin-bottom:36px;}
+.video-demo .s-intro{margin-left:auto; margin-right:auto; margin-bottom:36px;}
 .video-wrapper{max-width:920px; margin:0 auto;}
 
 /* Frame with adaptive aspect ratio (set via JS from Loom's real dimensions; fallback 16/9) */
@@ -816,6 +816,17 @@ window.addEventListener('load', function(){
       }
     }, 0);
   });
+})();
+
+// QR del dossier: ?checkout=basic → redirige automático a Stripe con el cupón
+// (dispara InitiateCheckout, así medimos los escaneos del dossier impreso)
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'basic') {
+      goCheckout('basic');
+    }
+  } catch(e){ /* noop */ }
 })();
 
 function goCheckout(plan, btn){
