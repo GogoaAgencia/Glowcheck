@@ -388,6 +388,41 @@ function contactEmail(e){
 <script>
   gtag('event', 'conversion', {'send_to': 'AW-11341761661/GvDmCI7tpsEcEP2YlqAq'});
 </script>
+  <!-- Google tag base (GA4 + Ads) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-11341761661"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2JD9Q3EJN4');
+  gtag('config', 'AW-11341761661');
+
+  (function(){
+    var p = new URLSearchParams(location.search);
+    var value = parseFloat(p.get('v')) || 19;
+    var txId = p.get('session_id') || ('web_' + Date.now());
+
+    // Conversión de compra — Google Ads
+    gtag('event', 'conversion', {
+      'send_to': 'AW-11341761661/YFc8CIng7c8cEP2YlqAq',
+      'value': value,
+      'currency': 'EUR',
+      'transaction_id': txId
+    });
+
+    // Purchase — GA4
+    gtag('event', 'purchase', {
+      'value': value,
+      'currency': 'EUR',
+      'transaction_id': txId
+    });
+
+    // Purchase — Meta (solo si el pixel está en esta página)
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'Purchase', { value: value, currency: 'EUR' });
+    }
+  })();
+</script>
 
 </body>
 </html>
