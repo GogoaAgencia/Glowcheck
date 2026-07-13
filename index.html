@@ -765,14 +765,18 @@ window.addEventListener('load', function(){
 
 // QR del dossier: ?checkout=basic → redirige automático a Stripe con el cupón
 // (dispara InitiateCheckout, así medimos los escaneos del dossier impreso)
-(function(){
+window.addEventListener('DOMContentLoaded', function(){
   try {
     var params = new URLSearchParams(window.location.search);
+    if (params.get('compra') === 'ok') {
+      if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: 19, currency: 'EUR' });
+      if (typeof gtag !== 'undefined') gtag('event', 'purchase', { value: 19, currency: 'EUR', transaction_id: 'stripe_' + Date.now() });
+    }
     if (params.get('checkout') === 'basic') {
       goCheckout('basic');
     }
   } catch(e){ /* noop */ }
-})();
+});
 
 function trackWaFloat(){
   if (typeof fbq !== 'undefined') {
@@ -798,6 +802,9 @@ function goCheckout(plan, btn){
   }
 
   if (typeof fbq !== 'undefined') {
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'begin_checkout', { currency: 'EUR', value: plan === 'basic' ? 19 : 349 });
+    }
     fbq('track', 'InitiateCheckout', {
       content_name: plan === 'pro' ? 'Pack Pro' : 'Pack Básico - Oferta 19€',
       value: plan === 'pro' ? 349 : 19,
@@ -813,6 +820,9 @@ function goCheckout(plan, btn){
 function goTalk(){
   if (typeof fbq !== 'undefined') {
     fbq('track', 'Contact', { content_name: 'Pack Pro - hablar primero' });
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'whatsapp_pro_click', { event_category: 'engagement' });
+    }
   }
   const msg = encodeURIComponent('Hola Glowcheck, me gustaria hablar sobre la posible activación del Pack Pro. Gracias.');
   window.location.href = 'https://wa.me/34618792084?text=' + msg;
