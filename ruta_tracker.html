@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Glowcheck · Ruta Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#16162A; --dark2:#1E1E38; --yellow:#F5E862; --lav:#D4BFFF; --lav-dark:#5E3EAD;
+  --cream:#FFFDF5; --green:#3DAB6F; --wa:#25D366; --red:#E05555; --orange:#E8A33D;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:var(--dark);color:white;min-height:100vh;padding-bottom:90px;}
+
+/* ── HEADER ── */
+.header{padding:18px 18px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--dark);z-index:20;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo{font-size:20px;font-weight:800;}
+.logo span{color:var(--lav);}
+.logo small{display:block;font-size:10px;font-weight:600;color:var(--yellow);letter-spacing:1.5px;text-transform:uppercase;}
+.header-actions{display:flex;gap:8px;}
+.hbtn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;font-size:11px;font-weight:700;padding:8px 12px;border-radius:100px;cursor:pointer;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:6px;padding:12px 18px;position:sticky;top:63px;background:var(--dark);z-index:19;overflow-x:auto;}
+.tab{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.75);font-size:12.5px;font-weight:700;padding:10px 8px;border-radius:12px;cursor:pointer;text-align:center;white-space:nowrap;position:relative;}
+.tab.active{background:var(--yellow);color:var(--dark);border-color:var(--yellow);}
+.tab .bubble{position:absolute;top:-6px;right:-4px;background:var(--red);color:white;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+
+.panel{display:none;padding:16px 18px;}
+.panel.active{display:block;}
+
+/* ── FORM ── */
+.card{background:var(--dark2);border:1px solid rgba(255,255,255,0.10);border-radius:16px;padding:16px;margin-bottom:14px;}
+label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.60);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;}
+label:first-child{margin-top:0;}
+input[type=text],input[type=tel],input[type=date],input[type=time],input[type=number],textarea,select{
+  width:100%;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);border-radius:12px;
+  color:white;font-size:15px;padding:12px 14px;outline:none;appearance:none;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--yellow);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F5E862' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+select option{background:var(--dark2);color:white;}
+textarea{min-height:70px;resize:vertical;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* Segmented buttons */
+.seg{display:flex;gap:8px;flex-wrap:wrap;}
+.seg button{flex:1;min-width:70px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.80);font-size:13px;font-weight:600;padding:11px 6px;border-radius:12px;cursor:pointer;}
+.seg button.on{background:var(--yellow);color:var(--dark);border-color:var(--yellow);font-weight:800;}
+.seg button.on.green{background:var(--green);border-color:var(--green);color:white;}
+.seg button.on.red{background:var(--red);border-color:var(--red);color:white;}
+.seg button.on.orange{background:var(--orange);border-color:var(--orange);color:var(--dark);}
+.seg button.on.lav{background:var(--lav-dark);border-color:var(--lav-dark);color:white;}
+
+.btn-main{width:100%;background:var(--yellow);color:var(--dark);font-size:16px;font-weight:800;padding:16px;border-radius:14px;border:none;cursor:pointer;margin-top:18px;}
+.btn-sec{width:100%;background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.18);font-size:13px;font-weight:700;padding:12px;border-radius:12px;cursor:pointer;margin-top:10px;}
+
+/* ── VISIT LIST ── */
+.vcard{background:var(--dark2);border:1px solid rgba(255,255,255,0.10);border-radius:16px;padding:14px 16px;margin-bottom:12px;}
+.vcard.conv-pro{border-color:var(--yellow);}
+.vcard.conv-basico{border-color:var(--green);}
+.vhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.vname{font-size:16px;font-weight:800;line-height:1.2;}
+.vmeta{font-size:12px;color:rgba(255,255,255,0.55);margin-top:3px;}
+.vdel{background:none;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.chip{font-size:11px;font-weight:700;padding:5px 10px;border-radius:100px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.80);}
+.chip.y{background:var(--yellow);color:var(--dark);}
+.chip.g{background:var(--green);color:white;}
+.chip.r{background:rgba(224,85,85,0.25);color:#FF9B9B;}
+.chip.o{background:rgba(232,163,61,0.25);color:#FFC97A;}
+.chip.l{background:rgba(94,62,173,0.45);color:var(--lav);}
+.vnotes{font-size:13px;color:rgba(255,255,255,0.70);margin-top:9px;line-height:1.4;font-style:italic;}
+.vactions{display:flex;gap:8px;margin-top:12px;}
+.vbtn{flex:1;font-size:12px;font-weight:700;padding:9px 6px;border-radius:10px;border:none;cursor:pointer;text-align:center;text-decoration:none;}
+.vbtn.wa{background:var(--wa);color:white;}
+.vbtn.pro{background:var(--yellow);color:var(--dark);}
+.vbtn.bas{background:var(--green);color:white;}
+.vbtn.ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.15);}
+.empty{text-align:center;color:rgba(255,255,255,0.40);font-size:14px;padding:40px 20px;line-height:1.6;}
+
+/* ── FUNNEL / DASHBOARD ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.kpi{background:var(--dark2);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:14px;}
+.kpi-n{font-size:28px;font-weight:800;color:var(--yellow);line-height:1;}
+.kpi-n.lav{color:var(--lav);}
+.kpi-n.green{color:var(--green);}
+.kpi-l{font-size:11px;color:rgba(255,255,255,0.60);margin-top:6px;line-height:1.3;}
+.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:11px;}
+.funnel-lbl{font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);width:118px;flex-shrink:0;}
+.funnel-bar{flex:1;height:26px;background:rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;position:relative;}
+.funnel-fill{height:100%;background:linear-gradient(90deg,var(--lav-dark),var(--lav));border-radius:8px;transition:width .4s;}
+.funnel-val{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;}
+.sec-title{font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);margin:20px 0 12px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;color:rgba(255,255,255,0.50);font-weight:700;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.12);font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;}
+td{padding:9px 6px;border-bottom:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
+td b{color:var(--yellow);}
+.cac-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.cac-result{background:linear-gradient(135deg,var(--lav-dark),#2B1E5C);border-radius:14px;padding:16px;text-align:center;}
+.cac-result .n{font-size:32px;font-weight:800;color:var(--yellow);}
+.cac-result .l{font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px;}
+
+/* ── SEGUIMIENTOS ── */
+.overdue{border-color:var(--red) !important;}
+.today-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:var(--red);color:white;display:inline-block;margin-bottom:8px;}
+.today-tag.soon{background:var(--orange);color:var(--dark);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--yellow);color:var(--dark);font-size:13px;font-weight:700;padding:12px 22px;border-radius:100px;z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 10px 30px -8px rgba(0,0,0,0.5);}
+.toast.show{opacity:1;}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:20px;left:18px;right:18px;background:var(--yellow);color:var(--dark);font-size:16px;font-weight:800;padding:16px;border-radius:16px;border:none;cursor:pointer;z-index:30;box-shadow:0 12px 30px -8px rgba(245,232,98,0.4);text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Glow<span>✓</span>check<small>Ruta Tracker</small></div>
+  <div class="header-actions">
+    <button class="hbtn" onclick="copyReport()">📋 Informe</button>
+    <button class="hbtn" onclick="exportJSON()">💾</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="registro" onclick="showTab('registro')">+ Visita</div>
+  <div class="tab" data-tab="visitas" onclick="showTab('visitas')">Visitas <span class="bubble" id="bVisitas" style="display:none"></span></div>
+  <div class="tab" data-tab="embudo" onclick="showTab('embudo')">Embudo</div>
+  <div class="tab" data-tab="seguim" onclick="showTab('seguim')">Seguim. <span class="bubble" id="bSeg" style="display:none"></span></div>
+</div>
+
+<!-- ═══ REGISTRO ═══ -->
+<div class="panel active" id="p-registro">
+  <div class="card">
+    <label>Clínica *</label>
+    <input type="text" id="f-clinica" placeholder="Nombre de la clínica">
+    <div class="row2">
+      <div><label>Zona / Barrio *</label><input type="text" id="f-zona" placeholder="Salamanca, Chamberí…"></div>
+      <div><label>Teléfono (WhatsApp)</label><input type="tel" id="f-tel" placeholder="6XXXXXXXX"></div>
+    </div>
+    <label>Tipo</label>
+    <div class="seg" id="s-tipo">
+      <button data-v="clinica" class="on">Clínica médica</button>
+      <button data-v="centro">Centro estética</button>
+    </div>
+    <div class="row2">
+      <div><label>Fecha</label><input type="date" id="f-fecha"></div>
+      <div><label>Hora</label><input type="time" id="f-hora"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>¿Hablaste con la decisora?</label>
+    <div class="seg" id="s-decisora">
+      <button data-v="si" data-c="green">Sí</button>
+      <button data-v="no" data-c="red">No</button>
+    </div>
+    <label>¿Pitch completo + díptico entregado?</label>
+    <div class="seg" id="s-pitch">
+      <button data-v="si" data-c="green">Sí</button>
+      <button data-v="parcial" data-c="orange">Parcial</button>
+      <button data-v="no" data-c="red">No</button>
+    </div>
+    <label>Reacción</label>
+    <div class="seg" id="s-reaccion">
+      <button data-v="frio" data-c="red">🧊 Frío</button>
+      <button data-v="tibio" data-c="orange">😐 Tibio</button>
+      <button data-v="caliente" data-c="green">🔥 Caliente</button>
+    </div>
+    <label>Objeción principal</label>
+    <select id="f-objecion">
+      <option value="">— Ninguna / no aplica —</option>
+      <option value="precio">Precio</option>
+      <option value="agencia">Ya tienen agencia/marketing</option>
+      <option value="sin-tiempo">Sin tiempo, vuelve otro día</option>
+      <option value="pensarlo">Tiene que pensarlo / consultarlo</option>
+      <option value="no-interesa">No le interesa</option>
+      <option value="desconfianza">Desconfianza / no lo conoce</option>
+      <option value="otra">Otra (ver notas)</option>
+    </select>
+    <label>Siguiente paso conseguido</label>
+    <div class="seg" id="s-paso">
+      <button data-v="nada" data-c="red">Nada</button>
+      <button data-v="whatsapp" data-c="lav">WA agendado</button>
+      <button data-v="basico" data-c="green">Básico ✓</button>
+      <button data-v="pro" data-c="">Pro en conv.</button>
+    </div>
+    <div class="row2">
+      <div><label>Seguimiento el…</label><input type="date" id="f-seguimiento"></div>
+      <div><label>&nbsp;</label>
+        <select id="f-seg-quick" onchange="quickSeg(this.value)">
+          <option value="">Rápido…</option>
+          <option value="1">Mañana</option>
+          <option value="2">En 2 días</option>
+          <option value="7">En 1 semana</option>
+          <option value="30">En 1 mes</option>
+        </select>
+      </div>
+    </div>
+    <label>Notas (objeción textual, detalles, nombre de la decisora…)</label>
+    <textarea id="f-notas" placeholder="Ej: María, la dueña. Le encajó el ROI pero quiere hablarlo con su socia…"></textarea>
+  </div>
+
+  <button class="btn-main" onclick="saveVisit()">Guardar visita</button>
+</div>
+
+<!-- ═══ VISITAS ═══ -->
+<div class="panel" id="p-visitas">
+  <div class="row2" style="margin-bottom:12px;">
+    <select id="filt-zona" onchange="renderVisits()"><option value="">Todas las zonas</option></select>
+    <select id="filt-paso" onchange="renderVisits()">
+      <option value="">Todos los estados</option>
+      <option value="pro">Pro en conversación</option>
+      <option value="basico">Básico activado</option>
+      <option value="whatsapp">WA agendado</option>
+      <option value="nada">Sin siguiente paso</option>
+      <option value="convertida">Convertidas</option>
+    </select>
+  </div>
+  <div id="visitList"></div>
+</div>
+
+<!-- ═══ EMBUDO ═══ -->
+<div class="panel" id="p-embudo">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-n" id="k-visitas">0</div><div class="kpi-l">visitas totales</div></div>
+    <div class="kpi"><div class="kpi-n lav" id="k-semana">0</div><div class="kpi-l">esta semana</div></div>
+    <div class="kpi"><div class="kpi-n green" id="k-basicos">0</div><div class="kpi-l">Básicos activados</div></div>
+    <div class="kpi"><div class="kpi-n" id="k-pros">0</div><div class="kpi-l">Pros cerrados</div></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">Embudo de conversión</div>
+    <div class="funnel-row"><div class="funnel-lbl">Visitas</div><div class="funnel-bar"><div class="funnel-fill" id="fb-0" style="width:100%"></div><span class="funnel-val" id="fv-0">0</span></div></div>
+    <div class="funnel-row"><div class="funnel-lbl">Decisora presente</div><div class="funnel-bar"><div class="funnel-fill" id="fb-1"></div><span class="funnel-val" id="fv-1">0%</span></div></div>
+    <div class="funnel-row"><div class="funnel-lbl">Pitch completo</div><div class="funnel-bar"><div class="funnel-fill" id="fb-2"></div><span class="funnel-val" id="fv-2">0%</span></div></div>
+    <div class="funnel-row"><div class="funnel-lbl">Siguiente paso</div><div class="funnel-bar"><div class="funnel-fill" id="fb-3"></div><span class="funnel-val" id="fv-3">0%</span></div></div>
+    <div class="funnel-row"><div class="funnel-lbl">Altas (Bás.+Pro)</div><div class="funnel-bar"><div class="funnel-fill" id="fb-4"></div><span class="funnel-val" id="fv-4">0%</span></div></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">Coste de adquisición (CAC)</div>
+    <div class="cac-inputs">
+      <div><label>Horas de ruta</label><input type="number" id="cac-horas" value="0" min="0" step="0.5" oninput="renderDash()"></div>
+      <div><label>Tu coste/hora €</label><input type="number" id="cac-coste" value="15" min="0" oninput="renderDash()"></div>
+    </div>
+    <div class="cac-result"><div class="n" id="cac-n">—</div><div class="l">CAC por alta (incluye 3,2€/díptico entregado)</div></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">Objeciones más frecuentes</div>
+    <div id="objList"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">Cohortes semanales</div>
+    <table><thead><tr><th>Semana</th><th>Visitas</th><th>Decis.</th><th>Paso</th><th>Altas</th></tr></thead><tbody id="cohortBody"></tbody></table>
+  </div>
+</div>
+
+<!-- ═══ SEGUIMIENTOS ═══ -->
+<div class="panel" id="p-seguim">
+  <div id="segList"></div>
+</div>
+
+<button class="fab" id="fab" style="display:none" onclick="showTab('registro')">+ Nueva visita</button>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════ STATE ═══════════
+const LS_KEY = 'glowcheck_ruta_v1';
+let visits = [];
+let settings = { horas: 0, coste: 15 };
+
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) { const d = JSON.parse(raw); visits = d.visits || []; settings = Object.assign(settings, d.settings || {}); }
+  } catch(e){}
+  document.getElementById('cac-horas').value = settings.horas;
+  document.getElementById('cac-coste').value = settings.coste;
+}
+function save(){
+  settings.horas = parseFloat(document.getElementById('cac-horas').value) || 0;
+  settings.coste = parseFloat(document.getElementById('cac-coste').value) || 0;
+  try { localStorage.setItem(LS_KEY, JSON.stringify({visits, settings})); } catch(e){}
+}
+
+// ═══════════ HELPERS ═══════════
+const $ = id => document.getElementById(id);
+const todayISO = () => new Date().toISOString().slice(0,10);
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
+function fmtDate(iso){ if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}`; }
+function isoWeek(iso){
+  const d = new Date(iso + 'T12:00:00');
+  const day = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - day + 3);
+  const firstThu = new Date(d.getFullYear(), 0, 4);
+  const fday = (firstThu.getDay() + 6) % 7;
+  firstThu.setDate(firstThu.getDate() - fday + 3);
+  const wk = 1 + Math.round((d - firstThu) / (7 * 86400000));
+  return `${d.getFullYear()}-S${String(wk).padStart(2,'0')}`;
+}
+const PASO_LBL = {nada:'Sin paso', whatsapp:'WA agendado', basico:'Básico activado', pro:'Pro en conversación'};
+const OBJ_LBL = {precio:'Precio', agencia:'Ya tienen agencia', 'sin-tiempo':'Sin tiempo', pensarlo:'Tiene que pensarlo', 'no-interesa':'No le interesa', desconfianza:'Desconfianza', otra:'Otra'};
+const REAC_ICO = {frio:'🧊', tibio:'😐', caliente:'🔥'};
+
+// ═══════════ SEGMENTED BUTTONS ═══════════
+document.querySelectorAll('.seg').forEach(seg => {
+  seg.addEventListener('click', e => {
+    const btn = e.target.closest('button'); if(!btn) return;
+    seg.querySelectorAll('button').forEach(b => { b.classList.remove('on','green','red','orange','lav'); });
+    btn.classList.add('on'); if(btn.dataset.c) btn.classList.add(btn.dataset.c);
+  });
+});
+function segVal(id){ const on = document.querySelector(`#${id} button.on`); return on ? on.dataset.v : null; }
+function quickSeg(days){ if(!days) return; const d = new Date(); d.setDate(d.getDate() + parseInt(days)); $('f-seguimiento').value = d.toISOString().slice(0,10); $('f-seg-quick').value=''; }
+
+// ═══════════ TABS ═══════════
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'p-' + name));
+  $('fab').style.display = name === 'registro' ? 'none' : 'block';
+  if(name === 'visitas') renderVisits();
+  if(name === 'embudo') renderDash();
+  if(name === 'seguim') renderSeg();
+}
+
+// ═══════════ SAVE VISIT ═══════════
+function initForm(){
+  $('f-fecha').value = todayISO();
+  const now = new Date(); $('f-hora').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+function saveVisit(){
+  const clinica = $('f-clinica').value.trim();
+  const zona = $('f-zona').value.trim();
+  if(!clinica || !zona){ toast('⚠️ Falta clínica o zona'); return; }
+  visits.unshift({
+    id: Date.now(),
+    clinica, zona,
+    tel: $('f-tel').value.trim().replace(/\s/g,''),
+    tipo: segVal('s-tipo') || 'clinica',
+    fecha: $('f-fecha').value || todayISO(),
+    hora: $('f-hora').value || '',
+    decisora: segVal('s-decisora'),
+    pitch: segVal('s-pitch'),
+    reaccion: segVal('s-reaccion'),
+    objecion: $('f-objecion').value,
+    paso: segVal('s-paso') || 'nada',
+    seguimiento: $('f-seguimiento').value || '',
+    notas: $('f-notas').value.trim(),
+    convertida: segVal('s-paso') === 'basico' ? 'basico' : null,
+    convFecha: segVal('s-paso') === 'basico' ? todayISO() : null
+  });
+  save();
+  // Reset (keep zona for route continuity)
+  ['f-clinica','f-tel','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
+  $('f-objecion').value = '';
+  document.querySelectorAll('#s-decisora button, #s-pitch button, #s-reaccion button, #s-paso button').forEach(b => b.classList.remove('on','green','red','orange','lav'));
+  initForm();
+  updateBubbles();
+  toast('✓ Visita guardada (' + visits.length + ' total)');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ═══════════ VISITS LIST ═══════════
+function renderVisits(){
+  // zone filter options
+  const zonas = [...new Set(visits.map(v => v.zona))].sort();
+  const fz = $('filt-zona'); const cur = fz.value;
+  fz.innerHTML = '<option value="">Todas las zonas</option>' + zonas.map(z => `<option ${z===cur?'selected':''}>${z}</option>`).join('');
+  const zf = fz.value, pf = $('filt-paso').value;
+  let list = visits.filter(v => (!zf || v.zona === zf) && (!pf || (pf === 'convertida' ? v.convertida : v.paso === pf && !v.convertida)));
+  const el = $('visitList');
+  if(!list.length){ el.innerHTML = '<div class="empty">Sin visitas aún.<br>Registra la primera desde la pestaña "+ Visita".</div>'; return; }
+  el.innerHTML = list.map(v => visitCard(v)).join('');
+}
+function visitCard(v, ctx){
+  const chips = [];
+  chips.push(`<span class="chip">${v.tipo === 'clinica' ? '🏥 Clínica' : '💅 Centro'}</span>`);
+  if(v.decisora === 'si') chips.push('<span class="chip g">Decisora ✓</span>');
+  if(v.decisora === 'no') chips.push('<span class="chip r">Sin decisora</span>');
+  if(v.reaccion) chips.push(`<span class="chip ${v.reaccion==='caliente'?'g':v.reaccion==='tibio'?'o':'r'}">${REAC_ICO[v.reaccion]} ${v.reaccion}</span>`);
+  if(v.convertida === 'pro') chips.push('<span class="chip y">★ PRO CERRADO</span>');
+  else if(v.convertida === 'basico') chips.push('<span class="chip g">✓ BÁSICO</span>');
+  else if(v.paso && v.paso !== 'nada') chips.push(`<span class="chip l">${PASO_LBL[v.paso]}</span>`);
+  if(v.objecion) chips.push(`<span class="chip o">${OBJ_LBL[v.objecion] || v.objecion}</span>`);
+  if(v.seguimiento && !v.convertida) chips.push(`<span class="chip">📅 seg. ${fmtDate(v.seguimiento)}</span>`);
+  const waMsg = encodeURIComponent(`Hola, soy Borja de Glowcheck 🙂 Un placer visitaros hoy en ${v.clinica}.`);
+  const actions = [];
+  if(v.tel) actions.push(`<a class="vbtn wa" href="https://wa.me/34${v.tel}?text=${waMsg}" target="_blank">💬 WhatsApp</a>`);
+  if(!v.convertida){
+    actions.push(`<button class="vbtn bas" onclick="convert(${v.id},'basico')">→ Básico</button>`);
+    actions.push(`<button class="vbtn pro" onclick="convert(${v.id},'pro')">→ Pro ★</button>`);
+  } else {
+    actions.push(`<button class="vbtn ghost" onclick="unconvert(${v.id})">Deshacer conversión</button>`);
+  }
+  return `<div class="vcard ${v.convertida ? 'conv-'+v.convertida : ''} ${ctx==='overdue'?'overdue':''}">
+    <div class="vhead">
+      <div><div class="vname">${v.clinica}</div><div class="vmeta">${v.zona} · ${fmtDate(v.fecha)} ${v.hora}</div></div>
+      <button class="vdel" onclick="delVisit(${v.id})">✕</button>
+    </div>
+    <div class="chips">${chips.join('')}</div>
+    ${v.notas ? `<div class="vnotes">"${v.notas}"</div>` : ''}
+    <div class="vactions">${actions.join('')}</div>
+  </div>`;
+}
+function convert(id, plan){
+  const v = visits.find(x => x.id === id); if(!v) return;
+  v.convertida = plan; v.convFecha = todayISO();
+  save(); renderVisits(); renderSeg(); updateBubbles();
+  toast(plan === 'pro' ? '★ ¡PRO CERRADO! Enhorabuena' : '✓ Básico registrado');
+}
+function unconvert(id){
+  const v = visits.find(x => x.id === id); if(!v) return;
+  v.convertida = null; v.convFecha = null;
+  save(); renderVisits(); updateBubbles();
+}
+function delVisit(id){
+  if(!confirm('¿Eliminar esta visita?')) return;
+  visits = visits.filter(x => x.id !== id);
+  save(); renderVisits(); updateBubbles(); toast('Visita eliminada');
+}
+
+// ═══════════ DASHBOARD ═══════════
+function renderDash(){
+  save();
+  const n = visits.length;
+  const wk = isoWeek(todayISO());
+  $('k-visitas').textContent = n;
+  $('k-semana').textContent = visits.filter(v => isoWeek(v.fecha) === wk).length;
+  const basicos = visits.filter(v => v.convertida === 'basico').length;
+  const pros = visits.filter(v => v.convertida === 'pro').length;
+  $('k-basicos').textContent = basicos;
+  $('k-pros').textContent = pros;
+
+  const dec = visits.filter(v => v.decisora === 'si').length;
+  const pit = visits.filter(v => v.pitch === 'si').length;
+  const paso = visits.filter(v => v.paso && v.paso !== 'nada').length;
+  const altas = basicos + pros;
+  const pct = x => n ? Math.round(x / n * 100) : 0;
+  $('fv-0').textContent = n;
+  const stages = [[1,dec],[2,pit],[3,paso],[4,altas]];
+  stages.forEach(([i,val]) => { $('fb-'+i).style.width = pct(val) + '%'; $('fv-'+i).textContent = pct(val) + '% (' + val + ')'; });
+
+  // CAC
+  const horas = parseFloat($('cac-horas').value) || 0;
+  const coste = parseFloat($('cac-coste').value) || 0;
+  const dipticos = visits.filter(v => v.pitch === 'si' || v.pitch === 'parcial').length;
+  const inv = horas * coste + dipticos * 3.2;
+  $('cac-n').textContent = altas ? (inv / altas).toFixed(0) + '€' : (inv ? inv.toFixed(0) + '€ invertidos · 0 altas' : '—');
+
+  // Objeciones
+  const objs = {};
+  visits.forEach(v => { if(v.objecion) objs[v.objecion] = (objs[v.objecion] || 0) + 1; });
+  const sorted = Object.entries(objs).sort((a,b) => b[1] - a[1]);
+  $('objList').innerHTML = sorted.length
+    ? sorted.map(([k,c]) => `<div class="funnel-row"><div class="funnel-lbl">${OBJ_LBL[k]||k}</div><div class="funnel-bar"><div class="funnel-fill" style="width:${Math.round(c/n*100)}%;background:linear-gradient(90deg,#E8A33D,#F5E862);"></div><span class="funnel-val">${c}</span></div></div>`).join('')
+    : '<div class="empty" style="padding:10px;">Sin objeciones registradas</div>';
+
+  // Cohortes
+  const weeks = {};
+  visits.forEach(v => {
+    const w = isoWeek(v.fecha);
+    weeks[w] = weeks[w] || {n:0, dec:0, paso:0, altas:0};
+    weeks[w].n++;
+    if(v.decisora === 'si') weeks[w].dec++;
+    if(v.paso && v.paso !== 'nada') weeks[w].paso++;
+    if(v.convertida) weeks[w].altas++;
+  });
+  const rows = Object.entries(weeks).sort((a,b) => b[0].localeCompare(a[0]));
+  $('cohortBody').innerHTML = rows.length
+    ? rows.map(([w,d]) => `<tr><td>${w}</td><td><b>${d.n}</b></td><td>${Math.round(d.dec/d.n*100)}%</td><td>${Math.round(d.paso/d.n*100)}%</td><td><b>${d.altas}</b></td></tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.4);">Sin datos</td></tr>';
+}
+
+// ═══════════ SEGUIMIENTOS ═══════════
+function pendingSeg(){
+  const today = todayISO();
+  return visits.filter(v => v.seguimiento && !v.convertida && v.paso !== 'nada')
+    .sort((a,b) => a.seguimiento.localeCompare(b.seguimiento))
+    .map(v => ({...v, overdue: v.seguimiento < today, isToday: v.seguimiento === today}));
+}
+function renderSeg(){
+  const list = pendingSeg();
+  const el = $('segList');
+  if(!list.length){ el.innerHTML = '<div class="empty">Sin seguimientos pendientes.<br>Cuando registres una visita con fecha de seguimiento, aparecerá aquí.</div>'; return; }
+  el.innerHTML = list.map(v => {
+    let tag = '';
+    if(v.overdue) tag = '<span class="today-tag">⚠ Atrasado · ' + fmtDate(v.seguimiento) + '</span>';
+    else if(v.isToday) tag = '<span class="today-tag">📞 HOY</span>';
+    else tag = '<span class="today-tag soon">📅 ' + fmtDate(v.seguimiento) + '</span>';
+    return tag + visitCard(v, v.overdue ? 'overdue' : '');
+  }).join('');
+}
+function updateBubbles(){
+  const seg = pendingSeg().filter(v => v.overdue || v.isToday).length;
+  $('bSeg').style.display = seg ? 'flex' : 'none';
+  $('bSeg').textContent = seg;
+  $('bVisitas').style.display = visits.length ? 'flex' : 'none';
+  $('bVisitas').textContent = visits.length;
+}
+
+// ═══════════ REPORT FOR CLAUDE ═══════════
+function copyReport(){
+  const n = visits.length;
+  if(!n){ toast('Sin datos aún'); return; }
+  const dec = visits.filter(v => v.decisora === 'si').length;
+  const paso = visits.filter(v => v.paso && v.paso !== 'nada').length;
+  const basicos = visits.filter(v => v.convertida === 'basico').length;
+  const pros = visits.filter(v => v.convertida === 'pro').length;
+  const pct = x => Math.round(x/n*100);
+  const objs = {};
+  visits.forEach(v => { if(v.objecion) objs[v.objecion] = (objs[v.objecion]||0)+1; });
+  const topObj = Object.entries(objs).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,c])=>`${OBJ_LBL[k]||k} (${c})`).join(', ') || 'ninguna';
+  const seg = pendingSeg();
+  let txt = `📊 RUTA GLOWCHECK — ${new Date().toLocaleDateString('es-ES')}\n`;
+  txt += `Visitas: ${n} | Decisora: ${pct(dec)}% | Siguiente paso: ${pct(paso)}%\n`;
+  txt += `Altas: ${basicos} Básico + ${pros} Pro\n`;
+  txt += `Objeciones top: ${topObj}\n`;
+  txt += `Seguimientos pendientes: ${seg.length}\n\n`;
+  txt += `ÚLTIMAS VISITAS:\n`;
+  visits.slice(0, 15).forEach(v => {
+    txt += `• ${fmtDate(v.fecha)} ${v.clinica} (${v.zona}) — ${v.tipo === 'clinica' ? 'clínica' : 'centro'}, decisora ${v.decisora || '?'}, ${v.reaccion || 'sin reacción'}, ${v.convertida ? '★ ' + v.convertida.toUpperCase() : PASO_LBL[v.paso] || ''}${v.objecion ? ', obj: ' + (OBJ_LBL[v.objecion]||v.objecion) : ''}${v.notas ? ' — "' + v.notas + '"' : ''}\n`;
+  });
+  navigator.clipboard.writeText(txt).then(() => toast('📋 Informe copiado — pégamelo en el chat'))
+    .catch(() => { prompt('Copia el informe:', txt); });
+}
+
+// ═══════════ EXPORT / IMPORT ═══════════
+function exportJSON(){
+  const blob = new Blob([JSON.stringify({visits, settings}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'glowcheck_ruta_' + todayISO() + '.json';
+  a.click();
+  toast('💾 Copia de seguridad descargada');
+}
+
+// ═══════════ INIT ═══════════
+load();
+initForm();
+updateBubbles();
+</script>
+</body>
+</html>
