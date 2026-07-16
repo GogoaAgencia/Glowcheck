@@ -152,6 +152,8 @@ td b{color:var(--yellow);}
       <div><label>Zona / Barrio *</label><input type="text" id="f-zona" placeholder="Salamanca, Chamberí…"></div>
       <div><label>Teléfono (WhatsApp)</label><input type="tel" id="f-tel" placeholder="6XXXXXXXX"></div>
     </div>
+    <label>Email de contacto (si te lo dejan)</label>
+    <input type="text" id="f-email" placeholder="nombre@clinica.com">
     <label>Tipo</label>
     <div class="seg" id="s-tipo">
       <button data-v="clinica" class="on">Clínica médica</button>
@@ -196,11 +198,12 @@ td b{color:var(--yellow);}
     <div class="seg" id="s-paso">
       <button data-v="nada" data-c="red">Nada</button>
       <button data-v="whatsapp" data-c="lav">WA agendado</button>
+      <button data-v="contacto" data-c="orange">📇 Email/tarjeta</button>
       <button data-v="basico" data-c="green">Básico ✓</button>
       <button data-v="pro" data-c="">Pro en conv.</button>
     </div>
     <div class="row2">
-      <div><label>Seguimiento el…</label><input type="date" id="f-seguimiento"></div>
+      <div><label>Seguimiento (vacío = 🔄 ciclo auto)</label><input type="date" id="f-seguimiento"></div>
       <div><label>&nbsp;</label>
         <select id="f-seg-quick" onchange="quickSeg(this.value)">
           <option value="">Rápido…</option>
@@ -227,6 +230,7 @@ td b{color:var(--yellow);}
       <option value="pro">Pro en conversación</option>
       <option value="basico">Básico activado</option>
       <option value="whatsapp">WA agendado</option>
+      <option value="contacto">Email/tarjeta</option>
       <option value="nada">Sin siguiente paso</option>
       <option value="convertida">Convertidas</option>
     </select>
@@ -316,6 +320,22 @@ function segDateFrom(baseISO, days){
   return toLocalISO(d);
 }
 const segDate = days => segDateFrom(todayISO(), days);
+
+// ═══ CICLO FIJO GLOWCHECK ═══
+function autoSegVisita(paso, decisora, reaccion){
+  if(paso === 'pro') return {d: segDate(1), why: 'Pro → mañana'};
+  if(paso === 'whatsapp') return {d: segDate(2), why: 'WA → +2 días'};
+  if(paso === 'contacto') return {d: segDate(2), why: 'email/tarjeta → enviar HOY, seg. +2'};
+  if(paso === 'basico') return {d: segDate(7), why: 'Básico → check +7'};
+  if(decisora !== 'si') return {d: segDate(1), why: 'sin decisora → repesca mañana'};
+  if(reaccion === 'frio') return {d: segDate(45), why: 'fría → +45 días'};
+  return {d: segDate(7), why: 'tibia → +7 días'};
+}
+const CADENCIA = [2, 4, 7, 14, 30];
+function autoSegToque(nToquesHechos){
+  const days = CADENCIA[Math.min(nToquesHechos - 1, CADENCIA.length - 1)];
+  return {d: segDate(days), days};
+}
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
 function fmtDate(iso){ if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}`; }
 function isoWeek(iso){
@@ -328,7 +348,7 @@ function isoWeek(iso){
   const wk = 1 + Math.round((d - firstThu) / (7 * 86400000));
   return `${d.getFullYear()}-S${String(wk).padStart(2,'0')}`;
 }
-const PASO_LBL = {nada:'Sin paso', whatsapp:'WA agendado', basico:'Básico activado', pro:'Pro en conversación'};
+const PASO_LBL = {nada:'Sin paso', whatsapp:'WA agendado', contacto:'Email/tarjeta conseguido', basico:'Básico activado', pro:'Pro en conversación'};
 const OBJ_LBL = {precio:'Precio', agencia:'Ya tienen agencia', 'sin-tiempo':'Sin tiempo', pensarlo:'Tiene que pensarlo', 'no-interesa':'No le interesa', desconfianza:'Desconfianza', otra:'Otra'};
 const REAC_ICO = {frio:'🧊', tibio:'😐', caliente:'🔥'};
 
@@ -361,7 +381,7 @@ function initForm(){
 function editVisit(id){
   const v = visits.find(x => x.id === id); if(!v) return;
   editingId = id;
-  $('f-clinica').value = v.clinica; $('f-zona').value = v.zona; $('f-tel').value = v.tel || '';
+  $('f-clinica').value = v.clinica; $('f-zona').value = v.zona; $('f-tel').value = v.tel || ''; $('f-email').value = v.email || '';
   $('f-fecha').value = v.fecha; $('f-hora').value = v.hora || '';
   $('f-objecion').value = v.objecion || ''; $('f-seguimiento').value = v.seguimiento || '';
   $('f-notas').value = v.notas || '';
@@ -389,6 +409,7 @@ function saveVisit(){
       Object.assign(v, {
         clinica, zona,
         tel: $('f-tel').value.trim().replace(/\s/g,''),
+        email: $('f-email').value.trim(),
         tipo: segVal('s-tipo') || v.tipo,
         fecha: $('f-fecha').value || v.fecha,
         hora: $('f-hora').value || v.hora,
@@ -404,7 +425,7 @@ function saveVisit(){
     editingId = null;
     document.querySelector('.btn-main').textContent = 'Guardar visita';
     save(); updateBubbles();
-    ['f-clinica','f-tel','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
+    ['f-clinica','f-tel','f-email','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
     $('f-objecion').value = '';
     document.querySelectorAll('#s-decisora button, #s-pitch button, #s-reaccion button, #s-paso button').forEach(b => b.classList.remove('on','green','red','orange','lav'));
     initForm();
@@ -412,10 +433,17 @@ function saveVisit(){
     showTab('visitas');
     return;
   }
+  let segAuto = null;
+  let segManual = $('f-seguimiento').value;
+  if(!segManual){
+    segAuto = autoSegVisita(segVal('s-paso') || 'nada', segVal('s-decisora'), segVal('s-reaccion'));
+    segManual = segAuto.d;
+  }
   visits.unshift({
     id: Date.now(),
     clinica, zona,
     tel: $('f-tel').value.trim().replace(/\s/g,''),
+    email: $('f-email').value.trim(),
     tipo: segVal('s-tipo') || 'clinica',
     fecha: $('f-fecha').value || todayISO(),
     hora: $('f-hora').value || '',
@@ -424,19 +452,19 @@ function saveVisit(){
     reaccion: segVal('s-reaccion'),
     objecion: $('f-objecion').value,
     paso: segVal('s-paso') || 'nada',
-    seguimiento: $('f-seguimiento').value || '',
+    seguimiento: segManual,
     notas: $('f-notas').value.trim(),
     convertida: segVal('s-paso') === 'basico' ? 'basico' : null,
     convFecha: segVal('s-paso') === 'basico' ? todayISO() : null
   });
   save();
   // Reset (keep zona for route continuity)
-  ['f-clinica','f-tel','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
+  ['f-clinica','f-tel','f-email','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
   $('f-objecion').value = '';
   document.querySelectorAll('#s-decisora button, #s-pitch button, #s-reaccion button, #s-paso button').forEach(b => b.classList.remove('on','green','red','orange','lav'));
   initForm();
   updateBubbles();
-  toast('✓ Visita guardada (' + visits.length + ' total)');
+  toast(segAuto ? '✓ Guardada · 🔄 seg. ' + fmtDate(segAuto.d) + ' (' + segAuto.why + ')' : '✓ Visita guardada (' + visits.length + ' total)');
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -462,10 +490,16 @@ function visitCard(v, ctx){
   else if(v.convertida === 'basico') chips.push('<span class="chip g">✓ BÁSICO</span>');
   else if(v.paso && v.paso !== 'nada') chips.push(`<span class="chip l">${PASO_LBL[v.paso]}</span>`);
   if(v.objecion) chips.push(`<span class="chip o">${OBJ_LBL[v.objecion] || v.objecion}</span>`);
+  if(v.email) chips.push(`<span class="chip l">✉️ ${v.email}</span>`);
   if(v.seguimiento && !v.convertida) chips.push(`<span class="chip">📅 seg. ${fmtDate(v.seguimiento)}</span>`);
   const waMsg = encodeURIComponent(`Hola, soy Borja de Glowcheck 🙂 Un placer visitaros hoy en ${v.clinica}.`);
   const actions = [];
   if(v.tel) actions.push(`<a class="vbtn wa" href="https://wa.me/34${v.tel}?text=${waMsg}" target="_blank">💬 WhatsApp</a>`);
+  if(v.email){
+    const mSubj = encodeURIComponent(`Invitación Glowcheck — seguimiento de mi visita a ${v.clinica}`);
+    const mBody = encodeURIComponent(`Hola,\n\nHe pasado hoy por ${v.clinica} y me han facilitado este contacto.\n\nSoy Borja, de Glowcheck — el directorio de clínicas estéticas verificadas. Estamos seleccionando 4-5 clínicas por zona en Madrid, y ${v.clinica} cumple el perfil.\n\nTe adjunto el dossier y aquí puedes ver la plataforma en acción: https://www.loom.com/share/9f0b6bb39c484a04b8746d934ea3858a\n\n¿Te viene bien una llamada breve esta semana?\n\nUn saludo,\nBorja · Glowcheck\nglowcheck.es · WhatsApp 618 792 084`);
+    actions.push(`<a class="vbtn ghost" style="background:rgba(94,62,173,0.5);border:none;color:white;" href="mailto:${v.email}?subject=${mSubj}&body=${mBody}">✉️ Email</a>`);
+  }
   actions.push(`<button class="vbtn ghost" onclick="toqueForm(${v.id})">✍ Toque</button>`);
   if(!v.convertida){
     actions.push(`<button class="vbtn bas" onclick="convert(${v.id},'basico')">→ Básico</button>`);
@@ -478,7 +512,8 @@ function visitCard(v, ctx){
   const toqueHtml = toqueOpenId === v.id ? `<div class="toque-form">
       <textarea id="tq-text-${v.id}" placeholder="¿Qué ha pasado? Ej: Le escribí por WhatsApp, sin respuesta aún"></textarea>
       <select id="tq-next-${v.id}">
-        <option value="keep">Próximo seguimiento: mantener (${v.seguimiento ? fmtDate(v.seguimiento) : 'sin fecha'})</option>
+        <option value="auto">🔄 Ciclo automático (recomendado)</option>
+        <option value="keep">Mantener actual (${v.seguimiento ? fmtDate(v.seguimiento) : 'sin fecha'})</option>
         <option value="1">Próximo: mañana</option>
         <option value="2">Próximo: en 2 días</option>
         <option value="7">Próximo: en 1 semana</option>
@@ -512,8 +547,9 @@ function saveToque(id){
   if(!txt.trim()){ toast('⚠️ Escribe qué ha pasado'); return; }
   if(!v.historial) v.historial = [];
   v.historial.push({ fecha: todayISO(), texto: txt.trim() });
-  const next = (document.getElementById('tq-next-' + id) || {}).value || 'keep';
+  const next = (document.getElementById('tq-next-' + id) || {}).value || 'auto';
   if(next === 'none') v.seguimiento = '';
+  else if(next === 'auto'){ const a = autoSegToque(v.historial.length); v.seguimiento = a.d; }
   else if(next !== 'keep'){ v.seguimiento = segDate(parseInt(next)); }
   toqueOpenId = null;
   save(); rerenderLists(); updateBubbles();
