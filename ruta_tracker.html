@@ -130,7 +130,7 @@ td b{color:var(--yellow);}
   <div class="logo">Glow<span>✓</span>check<small>Ruta Tracker</small></div>
   <div class="header-actions">
     <button class="hbtn" onclick="copyReport()">📋 Informe</button>
-    <button class="hbtn" onclick="exportJSON()">💾</button>
+    <button class="hbtn" onclick="shareData()">📤 Enviar</button>
     <button class="hbtn" onclick="document.getElementById('importFile').click()">📂</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
   </div>
@@ -266,6 +266,16 @@ td b{color:var(--yellow);}
   </div>
 
   <div class="card">
+    <div class="sec-title" style="margin-top:0;">☁️ Sincronización (Google Sheets)</div>
+    <label>Tu nombre (comercial)</label>
+    <input type="text" id="sync-comercial" placeholder="Borja" onchange="saveSyncCfg()">
+    <label>URL del Apps Script (acaba en /exec)</label>
+    <input type="text" id="sync-url" placeholder="https://script.google.com/macros/s/…/exec" onchange="saveSyncCfg()">
+    <div id="sync-status" style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:10px;">Sin configurar</div>
+    <button class="btn-sec" onclick="syncNow(true)">☁️ Sincronizar ahora</button>
+  </div>
+
+  <div class="card">
     <div class="sec-title" style="margin-top:0;">Objeciones más frecuentes</div>
     <div id="objList"></div>
   </div>
@@ -288,7 +298,7 @@ td b{color:var(--yellow);}
 // ═══════════ STATE ═══════════
 const LS_KEY = 'glowcheck_ruta_v1';
 let visits = [];
-let settings = { horas: 0, coste: 15 };
+let settings = { horas: 0, coste: 15, comercial: '', syncUrl: '', lastSync: null };
 let editingId = null;
 let toqueOpenId = null;
 
@@ -301,10 +311,21 @@ function load(){
   document.getElementById('cac-horas').value = settings.horas;
   document.getElementById('cac-coste').value = settings.coste;
 }
-function save(){
-  settings.horas = parseFloat(document.getElementById('cac-horas').value) || 0;
-  settings.coste = parseFloat(document.getElementById('cac-coste').value) || 0;
+let syncTimer = null;
+function persist(){
+  const h = document.getElementById('cac-horas'), c = document.getElementById('cac-coste');
+  if(h) settings.horas = parseFloat(h.value) || 0;
+  if(c) settings.coste = parseFloat(c.value) || 0;
   try { localStorage.setItem(LS_KEY, JSON.stringify({visits, settings})); } catch(e){}
+}
+function save(){
+  persist();
+  // Auto-sync con debounce de 3s (agrupa cambios seguidos) — solo cambios de DATOS
+  if(settings.syncUrl){
+    syncPending = true;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncNow(false), 3000);
+  }
 }
 
 // ═══════════ HELPERS ═══════════
@@ -441,6 +462,7 @@ function saveVisit(){
   }
   visits.unshift({
     id: Date.now(),
+    comercial: settings.comercial || '',
     clinica, zona,
     tel: $('f-tel').value.trim().replace(/\s/g,''),
     email: $('f-email').value.trim(),
@@ -575,7 +597,7 @@ function delVisit(id){
 
 // ═══════════ DASHBOARD ═══════════
 function renderDash(){
-  save();
+  persist();
   const n = visits.length;
   const wk = isoWeek(todayISO());
   $('k-visitas').textContent = n;
@@ -678,14 +700,80 @@ function copyReport(){
     .catch(() => { prompt('Copia el informe:', txt); });
 }
 
+// ═══════════ SYNC (Google Sheets vía Apps Script) ═══════════
+let syncPending = false;
+function saveSyncCfg(){
+  settings.comercial = $('sync-comercial').value.trim();
+  settings.syncUrl = $('sync-url').value.trim();
+  save();
+  syncNow();
+}
+function loadSyncCfg(){
+  $('sync-comercial').value = settings.comercial || '';
+  $('sync-url').value = settings.syncUrl || '';
+  renderSyncStatus();
+}
+function renderSyncStatus(msg){
+  const el = $('sync-status'); if(!el) return;
+  if(msg){ el.textContent = msg; return; }
+  if(!settings.syncUrl){ el.textContent = '⚪ Sin configurar — pega la URL del Apps Script'; return; }
+  if(syncPending){ el.textContent = '⏳ Cambios pendientes de subir…'; return; }
+  el.textContent = settings.lastSync ? '✅ Última sincronización: ' + new Date(settings.lastSync).toLocaleString('es-ES', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '⚪ Aún no sincronizado';
+}
+function syncNow(manual){
+  if(!settings.syncUrl){ if(manual) toast('⚠️ Configura la URL del Apps Script'); return; }
+  if(!visits.length){ if(manual) toast('Sin visitas que subir'); return; }
+  renderSyncStatus('⏳ Subiendo ' + visits.length + ' visitas…');
+  const payload = {
+    comercial: settings.comercial || 'sin nombre',
+    visits: visits.map(v => Object.assign({}, v, { comercial: v.comercial || settings.comercial || 'sin nombre' }))
+  };
+  fetch(settings.syncUrl, { method: 'POST', body: JSON.stringify(payload) })
+    .then(r => r.json())
+    .then(r => {
+      if(r.ok){
+        settings.lastSync = Date.now();
+        try { localStorage.setItem(LS_KEY, JSON.stringify({visits, settings})); } catch(e){}
+        syncPending = false;
+        renderSyncStatus();
+        if(manual) toast('☁️ Sincronizado: ' + r.total + ' visitas en el Sheet');
+      } else { throw new Error(r.error || 'error'); }
+    })
+    .catch(() => {
+      syncPending = true;
+      renderSyncStatus('⚠️ Sin conexión — se reintentará solo');
+      if(manual) toast('⚠️ No se pudo sincronizar (¿URL correcta? ¿cobertura?)');
+    });
+}
+
 // ═══════════ EXPORT / IMPORT ═══════════
-function exportJSON(){
-  const blob = new Blob([JSON.stringify({visits, settings}, null, 2)], {type:'application/json'});
+function dataFileName(){
+  const who = (settings.comercial || 'ruta').toLowerCase().replace(/[^a-z0-9]/g,'');
+  return 'glowcheck_' + who + '_' + todayISO() + '.json';
+}
+async function shareData(){
+  if(!visits.length){ toast('Sin datos que enviar aún'); return; }
+  const json = JSON.stringify({visits, settings}, null, 2);
+  const fileName = dataFileName();
+  const file = new File([json], fileName, {type:'application/json'});
+  // Móvil: hoja de compartir nativa (WhatsApp, email…)
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'Datos ruta Glowcheck',
+        text: '📊 Ruta Glowcheck — ' + (settings.comercial || '') + ' · ' + visits.length + ' visitas · ' + new Date().toLocaleDateString('es-ES')
+      });
+      toast('📤 Enviado');
+      return;
+    } catch(e){ if(e.name === 'AbortError') return; /* si falla, cae a descarga */ }
+  }
+  // PC o navegador sin share: descarga clásica
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'glowcheck_ruta_' + todayISO() + '.json';
+  a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+  a.download = fileName;
   a.click();
-  toast('💾 Copia de seguridad descargada');
+  toast('💾 Archivo descargado: ' + fileName);
 }
 
 function importJSON(input){
@@ -712,6 +800,8 @@ function importJSON(input){
 load();
 initForm();
 updateBubbles();
+loadSyncCfg();
+if(settings.syncUrl && visits.length) setTimeout(() => syncNow(false), 2000);
 </script>
 </body>
 </html>
