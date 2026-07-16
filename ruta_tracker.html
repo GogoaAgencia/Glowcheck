@@ -107,6 +107,15 @@ td b{color:var(--yellow);}
 .today-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:var(--red);color:white;display:inline-block;margin-bottom:8px;}
 .today-tag.soon{background:var(--orange);color:var(--dark);}
 
+/* ── HISTORIAL DE TOQUES ── */
+.hist{margin-top:10px;border-left:2.5px solid rgba(212,191,255,0.40);padding-left:11px;}
+.hist-item{font-size:12px;color:rgba(255,255,255,0.68);margin-bottom:5px;line-height:1.35;}
+.hist-item span{color:var(--lav);font-weight:700;margin-right:6px;}
+.toque-form{margin-top:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:12px;}
+.toque-form textarea{min-height:56px;font-size:14px;}
+.toque-form select{margin-top:8px;font-size:13px;padding:10px 12px;}
+.toque-form .vbtn{margin-top:10px;width:100%;padding:11px;}
+
 /* ── TOAST ── */
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--yellow);color:var(--dark);font-size:13px;font-weight:700;padding:12px 22px;border-radius:100px;z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 10px 30px -8px rgba(0,0,0,0.5);}
 .toast.show{opacity:1;}
@@ -277,11 +286,13 @@ const LS_KEY = 'glowcheck_ruta_v1';
 let visits = [];
 let settings = { horas: 0, coste: 15 };
 let editingId = null;
+let toqueOpenId = null;
 
 function load(){
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) { const d = JSON.parse(raw); visits = d.visits || []; settings = Object.assign(settings, d.settings || {}); }
+    visits.forEach(v => { if(!v.historial) v.historial = []; });
   } catch(e){}
   document.getElementById('cac-horas').value = settings.horas;
   document.getElementById('cac-coste').value = settings.coste;
@@ -445,12 +456,27 @@ function visitCard(v, ctx){
   const waMsg = encodeURIComponent(`Hola, soy Borja de Glowcheck 🙂 Un placer visitaros hoy en ${v.clinica}.`);
   const actions = [];
   if(v.tel) actions.push(`<a class="vbtn wa" href="https://wa.me/34${v.tel}?text=${waMsg}" target="_blank">💬 WhatsApp</a>`);
+  actions.push(`<button class="vbtn ghost" onclick="toqueForm(${v.id})">✍ Toque</button>`);
   if(!v.convertida){
     actions.push(`<button class="vbtn bas" onclick="convert(${v.id},'basico')">→ Básico</button>`);
     actions.push(`<button class="vbtn pro" onclick="convert(${v.id},'pro')">→ Pro ★</button>`);
   } else {
     actions.push(`<button class="vbtn ghost" onclick="unconvert(${v.id})">Deshacer conversión</button>`);
   }
+  const histHtml = (v.historial && v.historial.length)
+    ? `<div class="hist">${v.historial.map(h => `<div class="hist-item"><span>${fmtDate(h.fecha)}</span>${h.texto}</div>`).join('')}</div>` : '';
+  const toqueHtml = toqueOpenId === v.id ? `<div class="toque-form">
+      <textarea id="tq-text-${v.id}" placeholder="¿Qué ha pasado? Ej: Le escribí por WhatsApp, sin respuesta aún"></textarea>
+      <select id="tq-next-${v.id}">
+        <option value="keep">Próximo seguimiento: mantener (${v.seguimiento ? fmtDate(v.seguimiento) : 'sin fecha'})</option>
+        <option value="1">Próximo: mañana</option>
+        <option value="2">Próximo: en 2 días</option>
+        <option value="7">Próximo: en 1 semana</option>
+        <option value="30">Próximo: en 1 mes</option>
+        <option value="none">Sin más seguimiento</option>
+      </select>
+      <button class="vbtn pro" onclick="saveToque(${v.id})">Guardar toque</button>
+    </div>` : '';
   return `<div class="vcard ${v.convertida ? 'conv-'+v.convertida : ''} ${ctx==='overdue'?'overdue':''}">
     <div class="vhead">
       <div><div class="vname">${v.clinica}</div><div class="vmeta">${v.zona} · ${fmtDate(v.fecha)} ${v.hora}</div></div>
@@ -458,9 +484,32 @@ function visitCard(v, ctx){
     </div>
     <div class="chips">${chips.join('')}</div>
     ${v.notas ? `<div class="vnotes">"${v.notas}"</div>` : ''}
+    ${histHtml}
     <div class="vactions">${actions.join('')}</div>
+    ${toqueHtml}
   </div>`;
 }
+function currentTab(){ const t = document.querySelector('.tab.active'); return t ? t.dataset.tab : 'visitas'; }
+function rerenderLists(){ if(currentTab() === 'seguim') renderSeg(); else renderVisits(); }
+function toqueForm(id){
+  toqueOpenId = (toqueOpenId === id) ? null : id;
+  rerenderLists();
+  if(toqueOpenId){ setTimeout(() => { const el = document.getElementById('tq-text-' + id); if(el) el.focus(); }, 100); }
+}
+function saveToque(id){
+  const v = visits.find(x => x.id === id); if(!v) return;
+  const txt = (document.getElementById('tq-text-' + id) || {}).value || '';
+  if(!txt.trim()){ toast('⚠️ Escribe qué ha pasado'); return; }
+  if(!v.historial) v.historial = [];
+  v.historial.push({ fecha: todayISO(), texto: txt.trim() });
+  const next = (document.getElementById('tq-next-' + id) || {}).value || 'keep';
+  if(next === 'none') v.seguimiento = '';
+  else if(next !== 'keep'){ const d = new Date(); d.setDate(d.getDate() + parseInt(next)); v.seguimiento = d.toISOString().slice(0,10); }
+  toqueOpenId = null;
+  save(); rerenderLists(); updateBubbles();
+  toast('✍ Toque registrado' + (v.seguimiento ? ' · próximo ' + fmtDate(v.seguimiento) : ''));
+}
+
 function convert(id, plan){
   const v = visits.find(x => x.id === id); if(!v) return;
   v.convertida = plan; v.convFecha = todayISO();
@@ -577,7 +626,7 @@ function copyReport(){
   txt += `Seguimientos pendientes: ${seg.length}\n\n`;
   txt += `ÚLTIMAS VISITAS:\n`;
   visits.slice(0, 15).forEach(v => {
-    txt += `• ${fmtDate(v.fecha)} ${v.clinica} (${v.zona}) — ${v.tipo === 'clinica' ? 'clínica' : 'centro'}, decisora ${v.decisora || '?'}, ${v.reaccion || 'sin reacción'}, ${v.convertida ? '★ ' + v.convertida.toUpperCase() : PASO_LBL[v.paso] || ''}${v.objecion ? ', obj: ' + (OBJ_LBL[v.objecion]||v.objecion) : ''}${v.notas ? ' — "' + v.notas + '"' : ''}\n`;
+    txt += `• ${fmtDate(v.fecha)} ${v.clinica} (${v.zona}) — ${v.tipo === 'clinica' ? 'clínica' : 'centro'}, decisora ${v.decisora || '?'}, ${v.reaccion || 'sin reacción'}, ${v.convertida ? '★ ' + v.convertida.toUpperCase() : PASO_LBL[v.paso] || ''}${v.objecion ? ', obj: ' + (OBJ_LBL[v.objecion]||v.objecion) : ''}${v.notas ? ' — "' + v.notas + '"' : ''}${v.historial && v.historial.length ? ' | último toque ' + fmtDate(v.historial[v.historial.length-1].fecha) + ': "' + v.historial[v.historial.length-1].texto + '"' : ''}\n`;
   });
   navigator.clipboard.writeText(txt).then(() => toast('📋 Informe copiado — pégamelo en el chat'))
     .catch(() => { prompt('Copia el informe:', txt); });
