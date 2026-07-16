@@ -305,7 +305,17 @@ function save(){
 
 // ═══════════ HELPERS ═══════════
 const $ = id => document.getElementById(id);
-const todayISO = () => new Date().toISOString().slice(0,10);
+const toLocalISO = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const todayISO = () => toLocalISO(new Date());
+function segDateFrom(baseISO, days){
+  const d = new Date(baseISO + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  const wd = d.getDay();               // 0=domingo, 6=sábado
+  if(wd === 6) d.setDate(d.getDate() + 2);   // sábado → lunes
+  else if(wd === 0) d.setDate(d.getDate() + 1); // domingo → lunes
+  return toLocalISO(d);
+}
+const segDate = days => segDateFrom(todayISO(), days);
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
 function fmtDate(iso){ if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}`; }
 function isoWeek(iso){
@@ -331,7 +341,7 @@ document.querySelectorAll('.seg').forEach(seg => {
   });
 });
 function segVal(id){ const on = document.querySelector(`#${id} button.on`); return on ? on.dataset.v : null; }
-function quickSeg(days){ if(!days) return; const d = new Date(); d.setDate(d.getDate() + parseInt(days)); $('f-seguimiento').value = d.toISOString().slice(0,10); $('f-seg-quick').value=''; }
+function quickSeg(days){ if(!days) return; $('f-seguimiento').value = segDate(parseInt(days)); $('f-seg-quick').value=''; }
 
 // ═══════════ TABS ═══════════
 function showTab(name){
@@ -504,7 +514,7 @@ function saveToque(id){
   v.historial.push({ fecha: todayISO(), texto: txt.trim() });
   const next = (document.getElementById('tq-next-' + id) || {}).value || 'keep';
   if(next === 'none') v.seguimiento = '';
-  else if(next !== 'keep'){ const d = new Date(); d.setDate(d.getDate() + parseInt(next)); v.seguimiento = d.toISOString().slice(0,10); }
+  else if(next !== 'keep'){ v.seguimiento = segDate(parseInt(next)); }
   toqueOpenId = null;
   save(); rerenderLists(); updateBubbles();
   toast('✍ Toque registrado' + (v.seguimiento ? ' · próximo ' + fmtDate(v.seguimiento) : ''));
