@@ -276,6 +276,7 @@ td b{color:var(--yellow);}
 const LS_KEY = 'glowcheck_ruta_v1';
 let visits = [];
 let settings = { horas: 0, coste: 15 };
+let editingId = null;
 
 function load(){
   try {
@@ -336,10 +337,60 @@ function initForm(){
   $('f-fecha').value = todayISO();
   const now = new Date(); $('f-hora').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 }
+function editVisit(id){
+  const v = visits.find(x => x.id === id); if(!v) return;
+  editingId = id;
+  $('f-clinica').value = v.clinica; $('f-zona').value = v.zona; $('f-tel').value = v.tel || '';
+  $('f-fecha').value = v.fecha; $('f-hora').value = v.hora || '';
+  $('f-objecion').value = v.objecion || ''; $('f-seguimiento').value = v.seguimiento || '';
+  $('f-notas').value = v.notas || '';
+  const setSeg = (segId, val) => {
+    document.querySelectorAll('#' + segId + ' button').forEach(b => {
+      b.classList.remove('on','green','red','orange','lav');
+      if(b.dataset.v === val){ b.classList.add('on'); if(b.dataset.c) b.classList.add(b.dataset.c); }
+    });
+  };
+  setSeg('s-tipo', v.tipo); setSeg('s-decisora', v.decisora); setSeg('s-pitch', v.pitch);
+  setSeg('s-reaccion', v.reaccion); setSeg('s-paso', v.paso);
+  document.querySelector('.btn-main').textContent = 'Actualizar visita ✎';
+  showTab('registro');
+  window.scrollTo({top:0, behavior:'smooth'});
+  toast('Editando: ' + v.clinica);
+}
+
 function saveVisit(){
   const clinica = $('f-clinica').value.trim();
   const zona = $('f-zona').value.trim();
   if(!clinica || !zona){ toast('⚠️ Falta clínica o zona'); return; }
+  if(editingId){
+    const v = visits.find(x => x.id === editingId);
+    if(v){
+      Object.assign(v, {
+        clinica, zona,
+        tel: $('f-tel').value.trim().replace(/\s/g,''),
+        tipo: segVal('s-tipo') || v.tipo,
+        fecha: $('f-fecha').value || v.fecha,
+        hora: $('f-hora').value || v.hora,
+        decisora: segVal('s-decisora'),
+        pitch: segVal('s-pitch'),
+        reaccion: segVal('s-reaccion'),
+        objecion: $('f-objecion').value,
+        paso: segVal('s-paso') || 'nada',
+        seguimiento: $('f-seguimiento').value || '',
+        notas: $('f-notas').value.trim()
+      });
+    }
+    editingId = null;
+    document.querySelector('.btn-main').textContent = 'Guardar visita';
+    save(); updateBubbles();
+    ['f-clinica','f-tel','f-notas','f-seguimiento'].forEach(id => $(id).value = '');
+    $('f-objecion').value = '';
+    document.querySelectorAll('#s-decisora button, #s-pitch button, #s-reaccion button, #s-paso button').forEach(b => b.classList.remove('on','green','red','orange','lav'));
+    initForm();
+    toast('✓ Visita actualizada');
+    showTab('visitas');
+    return;
+  }
   visits.unshift({
     id: Date.now(),
     clinica, zona,
@@ -403,7 +454,7 @@ function visitCard(v, ctx){
   return `<div class="vcard ${v.convertida ? 'conv-'+v.convertida : ''} ${ctx==='overdue'?'overdue':''}">
     <div class="vhead">
       <div><div class="vname">${v.clinica}</div><div class="vmeta">${v.zona} · ${fmtDate(v.fecha)} ${v.hora}</div></div>
-      <button class="vdel" onclick="delVisit(${v.id})">✕</button>
+      <button class="vdel" style="color:var(--yellow);" onclick="editVisit(${v.id})">✎</button><button class="vdel" onclick="delVisit(${v.id})">✕</button>
     </div>
     <div class="chips">${chips.join('')}</div>
     ${v.notas ? `<div class="vnotes">"${v.notas}"</div>` : ''}
