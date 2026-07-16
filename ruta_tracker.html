@@ -122,6 +122,8 @@ td b{color:var(--yellow);}
   <div class="header-actions">
     <button class="hbtn" onclick="copyReport()">📋 Informe</button>
     <button class="hbtn" onclick="exportJSON()">💾</button>
+    <button class="hbtn" onclick="document.getElementById('importFile').click()">📂</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
   </div>
 </div>
 
@@ -480,7 +482,7 @@ function renderDash(){
 // ═══════════ SEGUIMIENTOS ═══════════
 function pendingSeg(){
   const today = todayISO();
-  return visits.filter(v => v.seguimiento && !v.convertida && v.paso !== 'nada')
+  return visits.filter(v => v.seguimiento && !v.convertida)
     .sort((a,b) => a.seguimiento.localeCompare(b.seguimiento))
     .map(v => ({...v, overdue: v.seguimiento < today, isToday: v.seguimiento === today}));
 }
@@ -538,6 +540,26 @@ function exportJSON(){
   a.download = 'glowcheck_ruta_' + todayISO() + '.json';
   a.click();
   toast('💾 Copia de seguridad descargada');
+}
+
+function importJSON(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      const incoming = d.visits || [];
+      const ids = new Set(visits.map(v => v.id));
+      let added = 0;
+      incoming.forEach(v => { if(!ids.has(v.id)){ visits.push(v); added++; } });
+      visits.sort((a,b) => b.id - a.id);
+      if(d.settings) settings = Object.assign(settings, d.settings);
+      save(); updateBubbles(); renderVisits();
+      toast('📂 Importadas ' + added + ' visitas nuevas (' + visits.length + ' total)');
+    } catch(err){ toast('⚠️ Archivo no válido'); }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ═══════════ INIT ═══════════
