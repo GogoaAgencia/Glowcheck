@@ -154,6 +154,12 @@ td b{color:var(--yellow);}
     </div>
     <label>Email de contacto (si te lo dejan)</label>
     <input type="text" id="f-email" placeholder="nombre@clinica.com">
+    <label>Origen</label>
+    <div class="seg" id="s-origen">
+      <button data-v="ruta" class="on">🚶 Ruta</button>
+      <button data-v="web" data-c="lav">🌐 Web/Campaña</button>
+      <button data-v="referido" data-c="green">🤝 Referido</button>
+    </div>
     <label>Tipo</label>
     <div class="seg" id="s-tipo">
       <button data-v="clinica" class="on">Clínica médica</button>
@@ -223,10 +229,16 @@ td b{color:var(--yellow);}
 
 <!-- ═══ VISITAS ═══ -->
 <div class="panel" id="p-visitas">
-  <div class="row2" style="margin-bottom:12px;">
-    <select id="filt-zona" onchange="renderVisits()"><option value="">Todas las zonas</option></select>
-    <select id="filt-paso" onchange="renderVisits()">
-      <option value="">Todos los estados</option>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+    <select id="filt-zona" onchange="renderVisits()" style="font-size:12px;padding:10px 8px;"><option value="">Zonas</option></select>
+    <select id="filt-origen" onchange="renderVisits()" style="font-size:12px;padding:10px 8px;">
+      <option value="">Todos los orígenes</option>
+      <option value="ruta">🚶 Ruta</option>
+      <option value="web">🌐 Web/Campaña</option>
+      <option value="referido">🤝 Referido</option>
+    </select>
+    <select id="filt-paso" onchange="renderVisits()" style="font-size:12px;padding:10px 8px;">
+      <option value="">Estados</option>
       <option value="pro">Pro en conversación</option>
       <option value="basico">Básico activado</option>
       <option value="whatsapp">WA agendado</option>
@@ -248,7 +260,12 @@ td b{color:var(--yellow);}
   </div>
 
   <div class="card">
-    <div class="sec-title" style="margin-top:0;">Embudo de conversión</div>
+    <div class="sec-title" style="margin-top:0;">Por origen</div>
+    <div id="origenStats"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">Embudo de conversión (solo 🚶 ruta)</div>
     <div class="funnel-row"><div class="funnel-lbl">Visitas</div><div class="funnel-bar"><div class="funnel-fill" id="fb-0" style="width:100%"></div><span class="funnel-val" id="fv-0">0</span></div></div>
     <div class="funnel-row"><div class="funnel-lbl">Decisora presente</div><div class="funnel-bar"><div class="funnel-fill" id="fb-1"></div><span class="funnel-val" id="fv-1">0%</span></div></div>
     <div class="funnel-row"><div class="funnel-lbl">Pitch completo</div><div class="funnel-bar"><div class="funnel-fill" id="fb-2"></div><span class="funnel-val" id="fv-2">0%</span></div></div>
@@ -298,7 +315,7 @@ function load(){
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) { const d = JSON.parse(raw); visits = d.visits || []; settings = Object.assign(settings, d.settings || {}); }
-    visits.forEach(v => { if(!v.historial) v.historial = []; });
+    visits.forEach(v => { if(!v.historial) v.historial = []; if(!v.origen) v.origen = 'ruta'; });
   } catch(e){}
   document.getElementById('cac-horas').value = settings.horas;
   const cc = document.getElementById('cfg-comercial'); if(cc) cc.value = settings.comercial || '';
@@ -396,7 +413,7 @@ function editVisit(id){
       if(b.dataset.v === val){ b.classList.add('on'); if(b.dataset.c) b.classList.add(b.dataset.c); }
     });
   };
-  setSeg('s-tipo', v.tipo); setSeg('s-decisora', v.decisora); setSeg('s-pitch', v.pitch);
+  setSeg('s-origen', v.origen || 'ruta'); setSeg('s-tipo', v.tipo); setSeg('s-decisora', v.decisora); setSeg('s-pitch', v.pitch);
   setSeg('s-reaccion', v.reaccion); setSeg('s-paso', v.paso);
   document.querySelector('.btn-main').textContent = 'Actualizar visita ✎';
   showTab('registro');
@@ -415,6 +432,7 @@ function saveVisit(){
         clinica, zona,
         tel: $('f-tel').value.trim().replace(/\s/g,''),
         email: $('f-email').value.trim(),
+        origen: segVal('s-origen') || v.origen || 'ruta',
         tipo: segVal('s-tipo') || v.tipo,
         fecha: $('f-fecha').value || v.fecha,
         hora: $('f-hora').value || v.hora,
@@ -447,6 +465,7 @@ function saveVisit(){
   visits.unshift({
     id: Date.now(),
     comercial: settings.comercial || '',
+    origen: segVal('s-origen') || 'ruta',
     clinica, zona,
     tel: $('f-tel').value.trim().replace(/\s/g,''),
     email: $('f-email').value.trim(),
@@ -480,14 +499,16 @@ function renderVisits(){
   const zonas = [...new Set(visits.map(v => v.zona))].sort();
   const fz = $('filt-zona'); const cur = fz.value;
   fz.innerHTML = '<option value="">Todas las zonas</option>' + zonas.map(z => `<option ${z===cur?'selected':''}>${z}</option>`).join('');
-  const zf = fz.value, pf = $('filt-paso').value;
-  let list = visits.filter(v => (!zf || v.zona === zf) && (!pf || (pf === 'convertida' ? v.convertida : v.paso === pf && !v.convertida)));
+  const zf = fz.value, pf = $('filt-paso').value, of_ = $('filt-origen').value;
+  let list = visits.filter(v => (!zf || v.zona === zf) && (!of_ || (v.origen || 'ruta') === of_) && (!pf || (pf === 'convertida' ? v.convertida : v.paso === pf && !v.convertida)));
   const el = $('visitList');
   if(!list.length){ el.innerHTML = '<div class="empty">Sin visitas aún.<br>Registra la primera desde la pestaña "+ Visita".</div>'; return; }
   el.innerHTML = list.map(v => visitCard(v)).join('');
 }
 function visitCard(v, ctx){
   const chips = [];
+  const ORIG = {ruta:'🚶 Ruta', web:'🌐 Web', referido:'🤝 Referido'};
+  if(v.origen && v.origen !== 'ruta') chips.push(`<span class="chip l">${ORIG[v.origen]}</span>`);
   chips.push(`<span class="chip">${v.tipo === 'clinica' ? '🏥 Clínica' : '💅 Centro'}</span>`);
   if(v.decisora === 'si') chips.push('<span class="chip g">Decisora ✓</span>');
   if(v.decisora === 'no') chips.push('<span class="chip r">Sin decisora</span>');
@@ -591,19 +612,36 @@ function renderDash(){
   $('k-basicos').textContent = basicos;
   $('k-pros').textContent = pros;
 
-  const dec = visits.filter(v => v.decisora === 'si').length;
-  const pit = visits.filter(v => v.pitch === 'si').length;
-  const paso = visits.filter(v => v.paso && v.paso !== 'nada').length;
-  const altas = basicos + pros;
-  const pct = x => n ? Math.round(x / n * 100) : 0;
-  $('fv-0').textContent = n;
+  // Tabla por origen
+  const ORIG_LBL = {ruta:'🚶 Ruta', web:'🌐 Web/Campaña', referido:'🤝 Referido'};
+  const byOrig = {};
+  visits.forEach(v => {
+    const o = v.origen || 'ruta';
+    byOrig[o] = byOrig[o] || {n:0, altas:0, pros:0};
+    byOrig[o].n++;
+    if(v.convertida) byOrig[o].altas++;
+    if(v.convertida === 'pro') byOrig[o].pros++;
+  });
+  $('origenStats').innerHTML = Object.entries(byOrig).map(([o,d]) =>
+    `<div class="funnel-row"><div class="funnel-lbl">${ORIG_LBL[o]||o}</div><div class="funnel-bar"><div class="funnel-fill" style="width:${Math.round(d.n/n*100)}%"></div><span class="funnel-val">${d.n} · ${d.altas} altas${d.pros ? ' · '+d.pros+'★' : ''}</span></div></div>`
+  ).join('') || '<div class="empty" style="padding:10px;">Sin datos</div>';
+
+  // Embudo SOLO ruta (las etapas de puerta no aplican a web)
+  const ruta = visits.filter(v => (v.origen || 'ruta') === 'ruta');
+  const rn = ruta.length;
+  const dec = ruta.filter(v => v.decisora === 'si').length;
+  const pit = ruta.filter(v => v.pitch === 'si').length;
+  const paso = ruta.filter(v => v.paso && v.paso !== 'nada').length;
+  const altas = ruta.filter(v => v.convertida).length;
+  const pct = x => rn ? Math.round(x / rn * 100) : 0;
+  $('fv-0').textContent = rn;
   const stages = [[1,dec],[2,pit],[3,paso],[4,altas]];
   stages.forEach(([i,val]) => { $('fb-'+i).style.width = pct(val) + '%'; $('fv-'+i).textContent = pct(val) + '% (' + val + ')'; });
 
   // CAC
   const horas = parseFloat($('cac-horas').value) || 0;
   const coste = parseFloat($('cac-coste').value) || 0;
-  const dipticos = visits.filter(v => v.pitch === 'si' || v.pitch === 'parcial').length;
+  const dipticos = ruta.filter(v => v.pitch === 'si' || v.pitch === 'parcial').length;
   const inv = horas * coste + dipticos * 3.2;
   $('cac-n').textContent = altas ? (inv / altas).toFixed(0) + '€' : (inv ? inv.toFixed(0) + '€ invertidos · 0 altas' : '—');
 
@@ -676,12 +714,39 @@ function copyReport(){
   txt += `Altas: ${basicos} Básico + ${pros} Pro\n`;
   txt += `Objeciones top: ${topObj}\n`;
   txt += `Seguimientos pendientes: ${seg.length}\n\n`;
+  if(seg.length){
+    txt += `PRÓXIMOS SEGUIMIENTOS:\n`;
+    seg.slice(0, 12).forEach(v => {
+      const tag = v.overdue ? '⚠ ATRASADO' : (v.isToday ? '📞 HOY' : fmtDate(v.seguimiento));
+      txt += `• ${tag} — ${v.clinica} (${v.zona}) · ${PASO_LBL[v.paso] || 'pendiente'}${v.historial && v.historial.length ? ' · ' + v.historial.length + ' toques' : ''}\n`;
+    });
+    txt += `\n`;
+  }
   txt += `ÚLTIMAS VISITAS:\n`;
   visits.slice(0, 15).forEach(v => {
-    txt += `• ${fmtDate(v.fecha)} ${v.clinica} (${v.zona}) — ${v.tipo === 'clinica' ? 'clínica' : 'centro'}, decisora ${v.decisora || '?'}, ${v.reaccion || 'sin reacción'}, ${v.convertida ? '★ ' + v.convertida.toUpperCase() : PASO_LBL[v.paso] || ''}${v.objecion ? ', obj: ' + (OBJ_LBL[v.objecion]||v.objecion) : ''}${v.notas ? ' — "' + v.notas + '"' : ''}${v.historial && v.historial.length ? ' | último toque ' + fmtDate(v.historial[v.historial.length-1].fecha) + ': "' + v.historial[v.historial.length-1].texto + '"' : ''}\n`;
+    const orig = (v.origen && v.origen !== 'ruta') ? ' [' + v.origen + ']' : '';
+    txt += `• ${fmtDate(v.fecha)} ${v.clinica}${orig} (${v.zona}) — ${v.tipo === 'clinica' ? 'clínica' : 'centro'}, decisora ${v.decisora || '?'}, ${v.reaccion || 'sin reacción'}, ${v.convertida ? '★ ' + v.convertida.toUpperCase() : PASO_LBL[v.paso] || ''}${v.objecion ? ', obj: ' + (OBJ_LBL[v.objecion]||v.objecion) : ''}${v.seguimiento && !v.convertida ? ', seg. ' + fmtDate(v.seguimiento) : ''}${v.notas ? ' — "' + v.notas + '"' : ''}${v.historial && v.historial.length ? ' | último toque ' + fmtDate(v.historial[v.historial.length-1].fecha) + ': "' + v.historial[v.historial.length-1].texto + '"' : ''}\n`;
   });
-  navigator.clipboard.writeText(txt).then(() => toast('📋 Informe copiado — pégamelo en el chat'))
-    .catch(() => { prompt('Copia el informe:', txt); });
+  copyText(txt);
+}
+function copyText(txt){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt)
+      .then(() => toast('📋 Informe copiado — pégamelo en el chat'))
+      .catch(() => copyFallback(txt));
+  } else copyFallback(txt);
+}
+function copyFallback(txt){
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, txt.length);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+  if(ok) toast('📋 Informe copiado — pégamelo en el chat');
+  else prompt('Copia el informe manualmente:', txt);
 }
 
 // ═══════════ EXPORT / IMPORT ═══════════
