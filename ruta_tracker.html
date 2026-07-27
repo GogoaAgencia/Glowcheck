@@ -205,6 +205,7 @@ td b{color:var(--yellow);}
       <button data-v="nada" data-c="red">Nada</button>
       <button data-v="whatsapp" data-c="lav">WA agendado</button>
       <button data-v="contacto" data-c="orange">📇 Email/tarjeta</button>
+      <button data-v="cita" data-c="green">📅 CITA conseguida</button>
       <button data-v="basico" data-c="green">Básico ✓</button>
       <button data-v="pro" data-c="">Pro en conv.</button>
     </div>
@@ -243,6 +244,7 @@ td b{color:var(--yellow);}
       <option value="basico">Básico activado</option>
       <option value="whatsapp">WA agendado</option>
       <option value="contacto">Email/tarjeta</option>
+      <option value="cita">📅 Cita conseguida</option>
       <option value="nada">Sin siguiente paso</option>
       <option value="convertida">Convertidas</option>
     </select>
@@ -254,7 +256,7 @@ td b{color:var(--yellow);}
 <div class="panel" id="p-embudo">
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-n" id="k-visitas">0</div><div class="kpi-l">visitas totales</div></div>
-    <div class="kpi"><div class="kpi-n lav" id="k-semana">0</div><div class="kpi-l">esta semana</div></div>
+    <div class="kpi"><div class="kpi-n lav" id="k-citas">0</div><div class="kpi-l">📅 citas conseguidas</div></div>
     <div class="kpi"><div class="kpi-n green" id="k-basicos">0</div><div class="kpi-l">Básicos activados</div></div>
     <div class="kpi"><div class="kpi-n" id="k-pros">0</div><div class="kpi-l">Pros cerrados</div></div>
   </div>
@@ -348,6 +350,7 @@ function autoSegVisita(paso, decisora, reaccion){
   if(paso === 'pro') return {d: segDate(1), why: 'Pro → mañana'};
   if(paso === 'whatsapp') return {d: segDate(2), why: 'WA → +2 días'};
   if(paso === 'contacto') return {d: segDate(2), why: 'email/tarjeta → enviar HOY, seg. +2'};
+  if(paso === 'cita') return {d: segDate(1), why: 'CITA → pon la fecha de la cita (auto: mañana)'};
   if(paso === 'basico') return {d: segDate(7), why: 'Básico → check +7'};
   if(decisora !== 'si') return {d: segDate(1), why: 'sin decisora → repesca mañana'};
   if(reaccion === 'frio') return {d: segDate(45), why: 'fría → +45 días'};
@@ -370,7 +373,7 @@ function isoWeek(iso){
   const wk = 1 + Math.round((d - firstThu) / (7 * 86400000));
   return `${d.getFullYear()}-S${String(wk).padStart(2,'0')}`;
 }
-const PASO_LBL = {nada:'Sin paso', whatsapp:'WA agendado', contacto:'Email/tarjeta conseguido', basico:'Básico activado', pro:'Pro en conversación'};
+const PASO_LBL = {nada:'Sin paso', whatsapp:'WA agendado', contacto:'Email/tarjeta conseguido', cita:'📅 CITA conseguida', basico:'Básico activado', pro:'Pro en conversación'};
 const OBJ_LBL = {precio:'Precio', agencia:'Ya tienen agencia', 'sin-tiempo':'Sin tiempo', pensarlo:'Tiene que pensarlo', 'no-interesa':'No le interesa', desconfianza:'Desconfianza', otra:'Otra'};
 const REAC_ICO = {frio:'🧊', tibio:'😐', caliente:'🔥'};
 
@@ -515,6 +518,7 @@ function visitCard(v, ctx){
   if(v.reaccion) chips.push(`<span class="chip ${v.reaccion==='caliente'?'g':v.reaccion==='tibio'?'o':'r'}">${REAC_ICO[v.reaccion]} ${v.reaccion}</span>`);
   if(v.convertida === 'pro') chips.push('<span class="chip y">★ PRO CERRADO</span>');
   else if(v.convertida === 'basico') chips.push('<span class="chip g">✓ BÁSICO</span>');
+  else if(v.paso === 'cita') chips.push(`<span class="chip g">📅 CITA${v.seguimiento ? ' ' + fmtDate(v.seguimiento) : ''}</span>`);
   else if(v.paso && v.paso !== 'nada') chips.push(`<span class="chip l">${PASO_LBL[v.paso]}</span>`);
   if(v.objecion) chips.push(`<span class="chip o">${OBJ_LBL[v.objecion] || v.objecion}</span>`);
   if(v.email) chips.push(`<span class="chip l">✉️ ${v.email}</span>`);
@@ -606,7 +610,7 @@ function renderDash(){
   const n = visits.length;
   const wk = isoWeek(todayISO());
   $('k-visitas').textContent = n;
-  $('k-semana').textContent = visits.filter(v => isoWeek(v.fecha) === wk).length;
+  $('k-citas').textContent = visits.filter(v => v.paso === 'cita' || v.convertida).length;
   const basicos = visits.filter(v => v.convertida === 'basico').length;
   const pros = visits.filter(v => v.convertida === 'pro').length;
   $('k-basicos').textContent = basicos;
