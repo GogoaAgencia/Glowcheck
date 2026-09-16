@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Glowcheck — 8 contactos al mes para tu clínica estética por 39€</title>
-<meta name="description" content="+64.000 visualizaciones de marca y +8 contactos directos por WhatsApp al mes para tu clínica estética. Datos medidos. Sin permanencia. Activo en 24h.">
+<meta name="description" content="+64.000 visualizaciones de marca y +8 contactos directos por WhatsApp al mes para tu clínica estética. Tu primer mes por 19€. Sin permanencia. Activo en 24h.">
 
 <!-- ════ STRIPE PRECONNECT (faster checkout load) ════ -->
 <link rel="preconnect" href="https://buy.stripe.com" crossorigin>
@@ -90,6 +90,14 @@ body{
 .btn-primary{background:var(--yellow); color:var(--dark); font-size:15px; font-weight:700; padding:15px 28px; border-radius:11px; text-decoration:none; letter-spacing:-0.2px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s, box-shadow .15s; border:none; cursor:pointer; font-family:inherit;}
 .btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px -8px rgba(245,232,98,0.4);}
 .hero-note{font-size:12px; color:rgba(255,255,255,0.6); font-weight:300;}
+.hero-claim{display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap; background:linear-gradient(90deg, rgba(245,232,98,0.16), rgba(212,191,255,0.14)); border:1.5px solid var(--yellow); border-radius:14px; padding:14px 22px; margin:-6px 0 28px;}
+.hero-claim-txt{font-size:20px; font-weight:800; color:var(--white); letter-spacing:-0.4px; line-height:1.2;}
+.hero-claim-txt b{color:var(--yellow);}
+.hero-claim-note{font-size:11px; color:rgba(255,255,255,0.65); font-style:italic; font-weight:300;}
+@media (max-width:768px){ .hero-claim-txt{font-size:17px;} }
+.video-explore{text-align:center; margin-top:24px;}
+.btn-explore{display:inline-flex; align-items:center; gap:8px; background:var(--lav-dark); color:var(--white); font-size:16px; font-weight:700; padding:16px 34px; border-radius:12px; text-decoration:none; letter-spacing:-0.2px; transition:transform .15s, box-shadow .15s;}
+.btn-explore:hover{transform:translateY(-2px); box-shadow:0 12px 30px -12px rgba(94,62,173,0.55);}
 
 .trust{background:var(--white); border-bottom:1px solid rgba(164,143,216,0.15); padding:18px 22px;}
 .trust-inner{max-width:1080px; margin:0 auto; display:flex; flex-wrap:wrap; gap:18px 30px; justify-content:center; align-items:center;}
@@ -374,8 +382,13 @@ body{
       <div class="hstat"><span class="hstat-num">+8</span><span class="hstat-lbl">WhatsApp directos al mes</span></div>
     </div>
     <p class="hero-stats-note">Datos medidos en clínicas activas. Promedio mensual.</p>
+    <div class="hero-claim">
+      <span class="hero-claim-txt">= Al menos <b>4 clientes nuevos</b> al mes para tu clínica</span>
+      <span class="hero-claim-note">basado en nuestros datos</span>
+    </div>
     <div class="hero-cta-row">
-      <span class="hero-note">Sin permanencia · Activo en 24h · Datos medidos reales</span>
+      <button class="btn-primary" onclick="goCheckout('basic', this)">Empezar por 19€ →</button>
+      <span class="hero-note">Sin permanencia · Luego 39€/mes, IVA incluido</span>
     </div>
   </div>
 </section>
@@ -389,129 +402,10 @@ body{
   </div>
 </div>
 
-<!-- ══ VIDEO DEMO ══ -->
-<section class="video-demo" id="video">
-  <div class="section-inner">
-    <span class="s-label">Ver Glowcheck en acción</span>
-    <h2 class="s-title">Así van a encontrar<br>tu clínica.</h2>
-    <p class="s-intro">Un tour por Glowcheck.es con un <b>ejemplo real</b> de cómo funciona.</p>
-
-    <div class="video-wrapper">
-      <!-- Player de Loom embebido directamente (lazy: carga al acercarse con el scroll) -->
-      <div class="video-frame" id="videoFrame">
-        <iframe
-          id="loomPlayer"
-          src="https://www.loom.com/embed/9f0b6bb39c484a04b8746d934ea3858a?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
-          loading="lazy"
-          frameborder="0"
-          allowfullscreen
-          allow="autoplay; fullscreen"
-          title="Demo Glowcheck — la plataforma en acción">
-        </iframe>
-      </div>
-      <p class="video-note">
-        <a href="https://glowcheck.es" target="_blank" rel="noopener" onclick="trackDemoClick()">
-          O explora Glowcheck.es directamente →
-        </a>
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="results" id="resultados">
-  <div class="section-inner">
-    <span class="results-eyebrow">Lo que recibes cada mes</span>
-    <h2>Números <span>reales</span>, no promesas.</h2>
-    <p class="results-sub">Esto es lo que entrega Glowcheck cada mes a sus clínicas activas. Sin maquillaje, sin proyecciones, sin letra pequeña.</p>
-    <div class="results-grid">
-      <div class="rcard">
-        <div class="rcard-num">+64.000</div>
-        <div class="rcard-lbl">visualizaciones de marca en el público objetivo cada mes</div>
-      </div>
-      <div class="rcard">
-        <div class="rcard-num">400+</div>
-        <div class="rcard-lbl">visitas reales a tu perfil de Glowcheck cada mes</div>
-      </div>
-      <div class="rcard">
-        <div class="rcard-num">+18</div>
-        <div class="rcard-lbl">contactos cualificados (WhatsApp, llamada o formulario precualificado)</div>
-      </div>
-      <div class="rcard">
-        <div class="rcard-num">+8</div>
-        <div class="rcard-lbl">conversaciones directas iniciadas en tu WhatsApp</div>
-      </div>
-    </div>
-    <p class="results-foot">Promedio mensual medido en nuestras clínicas activas desde septiembre 2025.</p>
-  </div>
-</section>
-
-<section class="pro-section" id="pro">
-  <div class="section-inner">
-    <div class="pro-card">
-      <div class="pro-card-head">
-        <span class="pro-eyebrow">Nuestra propuesta</span>
-        <h2>Pack Pro</h2>
-        <p class="pro-lead">Para llenar tu agenda — o para posicionar tu clínica como <b>el referente verificado de tu zona</b>. Estrategia integral con presupuesto ampliado y gestión dedicada.</p>
-      </div>
-      <div class="pro-card-body">
-        <div class="pro-features">
-          <ul class="pro-feat-list">
-            <li><span class="pro-ck">✓</span> <span><b>Ficha verificada + publicidad incluida</b> — tu presencia completa en Glowcheck desde el día uno</span></li>
-            <li><span class="pro-ck">✓</span> <span><b>Posicionamiento premium</b> — tu clínica como referente verificado en las búsquedas de tu zona</span></li>
-            <li><span class="pro-ck">✓</span> <span><b>Campañas de Google optimizadas</b> — Búsqueda, Maps, YouTube, Display y Gmail</span></li>
-            <li><span class="pro-ck">✓</span> <span><b>Gestor dedicado</b> + informe mensual de resultados</span></li>
-            <li><span class="pro-ck">✓</span> <span><b>Soporte prioritario</b> por WhatsApp (&lt;4h)</span></li>
-          </ul>
-        </div>
-        <div class="pro-cta-block">
-          <div class="pro-price-info">
-            <span class="pro-price-lbl">Desde</span>
-            <span class="pro-price-num">349€</span>
-            <span class="pro-price-suf">/ mes · sin permanencia</span>
-          </div>
-          <div class="pro-allin">
-            <span class="pro-allin-t">✓ Este precio lo incluye todo</span>
-            <p>La <b>inversión publicitaria</b> y el <b>IVA</b> salen de aquí. Sin extras ni costes ocultos.</p>
-          </div>
-          <p class="pro-price-note">Varía según zona y objetivos. Sin permanencia, como todo en Glowcheck.</p>
-          <button class="pro-cta-btn" onclick="goTalk()">Hablar con Glowcheck →</button>
-          <p class="pro-cta-note">Hablamos por WhatsApp · sin compromiso</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="how" id="como-funciona">
-  <div class="section-inner">
-    <span class="s-label">Cómo funciona</span>
-    <h2 class="s-title">De cero a recibir<br>contactos en 3 pasos.</h2>
-    <p class="s-intro">Sin reuniones, sin formularios largos, sin papeleo. Empiezas hoy y mañana ya estás operativo.</p>
-    <div class="how-grid">
-      <div class="how-card">
-        <div class="how-num">01</div>
-        <h4>Te das de alta y pagas</h4>
-        <p>Menos de 2 minutos. Pago seguro vía Stripe. Sin permanencia, cancelas cuando quieras desde tu email.</p>
-      </div>
-      <div class="how-card">
-        <div class="how-num">02</div>
-        <h4>Tu clínica, en el escaparate en 24h</h4>
-        <p>Montamos tu ficha verificada donde los pacientes comparan y eligen con confianza — solo entran clínicas verificadas — y la amplificamos con campañas en Google gestionadas por nosotros.</p>
-      </div>
-      <div class="how-card">
-        <div class="how-num">03</div>
-        <h4>Solo recibes contactos cualificados</h4>
-        <p>Los pacientes te escriben directamente a tu WhatsApp o te llaman a la clínica. Y si dejan un formulario, nuestro equipo lo precualifica por teléfono antes de pasártelo. Cada mes, reporte con los datos.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
 <section class="packs" id="packs">
   <div class="section-inner">
-    <span class="s-label">El primer paso</span>
-    <h2 class="s-title">¿Prefieres probarlo antes?<br>Tu primer mes, <span style="color:var(--lav-dark);">19€.</span></h2>
+    <span class="s-label">La oferta de este mes</span>
+    <h2 class="s-title">Tu primer mes, <span style="color:var(--lav-dark);">19€.</span><br>Luego 39€/mes. Sin permanencia.</h2>
     <p class="s-intro">La forma más sencilla de comprobar cómo funciona Glowcheck: tu ficha profesional se beneficia de todo el tráfico que genera la plataforma, y los contactos te llegan directos a tu WhatsApp. <b>Pruébalo un mes, mide los resultados, y decide.</b></p>
     <div class="packs-grid single-pack">
 
@@ -552,6 +446,11 @@ body{
 
         <div class="pack-body">
           <div class="pack-anchor">
+            <div class="pack-anchor-lbl">🎯 Basado en nuestros datos</div>
+            <div class="pack-anchor-txt"><b>Al menos 4 clientes nuevos al mes:</b> los +18 contactos cualificados medidos en nuestras clínicas activas, con el ratio de cierre normal del sector (25-30%), son 4-6 pacientes nuevos cada mes.</div>
+          </div>
+
+          <div class="pack-anchor">
             <div class="pack-anchor-lbl">⚡ Por contexto</div>
             <div class="pack-anchor-txt">Una agencia te cobraría <s>+500€/mes</s> por hacer esto mismo. Aquí: <b>39€/mes, IVA incluido</b> (19€ tu primer mes).</div>
           </div>
@@ -591,6 +490,31 @@ body{
   </div>
 </section>
 
+<section class="how" id="como-funciona">
+  <div class="section-inner">
+    <span class="s-label">Cómo funciona</span>
+    <h2 class="s-title">De cero a recibir<br>contactos en 3 pasos.</h2>
+    <p class="s-intro">Sin reuniones, sin formularios largos, sin papeleo. Empiezas hoy y mañana ya estás operativo.</p>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <h4>Te das de alta y pagas</h4>
+        <p>Menos de 2 minutos. Pago seguro vía Stripe. Sin permanencia, cancelas cuando quieras desde tu email.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <h4>Tu clínica, en el escaparate en 24h</h4>
+        <p>Montamos tu ficha verificada donde los pacientes comparan y eligen con confianza — solo entran clínicas verificadas — y la amplificamos con campañas en Google gestionadas por nosotros.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <h4>Solo recibes contactos cualificados</h4>
+        <p>Los pacientes te escriben directamente a tu WhatsApp o te llaman a la clínica. Y si dejan un formulario, nuestro equipo lo precualifica por teléfono antes de pasártelo. Cada mes, reporte con los datos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="test">
   <div class="section-inner">
     <span class="s-label">Clínicas activas</span>
@@ -598,27 +522,118 @@ body{
     <div class="test-grid single">
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">Los pacientes nos contactan directamente por WhatsApp todos los meses. <em>Llevamos desde septiembre del año pasado y los números siguen ahí, sin parar.</em></p>
+        <p class="test-quote">Los pacientes nos contactan directamente por WhatsApp todos los meses. <em>Llevamos más de un año dentro y los números siguen ahí, sin parar.</em></p>
         <div class="test-data">
           <div class="test-data-item">
-            <div class="test-data-num">10 meses</div>
-            <div class="test-data-lbl">activos sin pausa</div>
+            <div class="test-data-num">+1 año</div>
+            <div class="test-data-lbl">activos sin interrupción</div>
+          </div>
+          <div class="test-data-item">
+            <div class="test-data-num">0%</div>
+            <div class="test-data-lbl">tasa de abandono</div>
           </div>
           <div class="test-data-item">
             <div class="test-data-num">18+/mes</div>
             <div class="test-data-lbl">contactos generados</div>
-          </div>
-          <div class="test-data-item">
-            <div class="test-data-num">8+/mes</div>
-            <div class="test-data-lbl">WhatsApp directos</div>
           </div>
         </div>
         <div class="test-author">
           <div class="test-avatar av-r">CR</div>
           <div>
             <div class="test-name">Clínica Renacimiento &amp; Clínica Dra. Olivia Oomen</div>
-            <div class="test-biz">Medicina Estética · clientes activos desde septiembre 2025</div>
+            <div class="test-biz">Medicina Estética · clientes activos desde hace más de un año</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ VIDEO DEMO ══ -->
+<section class="video-demo" id="video">
+  <div class="section-inner">
+    <span class="s-label">Ver Glowcheck en acción</span>
+    <h2 class="s-title">Así van a encontrar<br>tu clínica.</h2>
+    <p class="s-intro">Un tour por Glowcheck.es con un <b>ejemplo real</b> de cómo funciona.</p>
+
+    <div class="video-wrapper">
+      <!-- Player de Loom embebido directamente (lazy: carga al acercarse con el scroll) -->
+      <div class="video-frame" id="videoFrame">
+        <iframe
+          id="loomPlayer"
+          src="https://www.loom.com/embed/9f0b6bb39c484a04b8746d934ea3858a?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
+          loading="lazy"
+          frameborder="0"
+          allowfullscreen
+          allow="autoplay; fullscreen"
+          title="Demo Glowcheck — la plataforma en acción">
+        </iframe>
+      </div>
+      <div class="video-explore">
+        <a href="https://glowcheck.es" target="_blank" rel="noopener" class="btn-explore" onclick="trackDemoClick()">Explora Glowcheck.es tú mismo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="results" id="resultados">
+  <div class="section-inner">
+    <span class="results-eyebrow">Lo que recibes cada mes</span>
+    <h2>Números <span>reales</span>, no promesas.</h2>
+    <p class="results-sub">Esto es lo que entrega Glowcheck cada mes a sus clínicas activas. Sin maquillaje, sin proyecciones, sin letra pequeña.</p>
+    <div class="results-grid">
+      <div class="rcard">
+        <div class="rcard-num">+64.000</div>
+        <div class="rcard-lbl">visualizaciones de marca en el público objetivo cada mes</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-num">400+</div>
+        <div class="rcard-lbl">visitas reales a tu perfil de Glowcheck cada mes</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-num">+18</div>
+        <div class="rcard-lbl">contactos cualificados (WhatsApp, llamada o formulario precualificado)</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-num">+8</div>
+        <div class="rcard-lbl">conversaciones directas iniciadas en tu WhatsApp</div>
+      </div>
+    </div>
+    <p class="results-foot">Promedio mensual medido en nuestras clínicas activas durante más de un año.</p>
+  </div>
+</section>
+
+<section class="pro-section" id="pro">
+  <div class="section-inner">
+    <div class="pro-card">
+      <div class="pro-card-head">
+        <span class="pro-eyebrow">Nuestra propuesta</span>
+        <h2>Pack Pro</h2>
+        <p class="pro-lead">Para llenar tu agenda — o para posicionar tu clínica como <b>el referente verificado de tu zona</b>. Estrategia integral con presupuesto ampliado y gestión dedicada.</p>
+      </div>
+      <div class="pro-card-body">
+        <div class="pro-features">
+          <ul class="pro-feat-list">
+            <li><span class="pro-ck">✓</span> <span><b>Ficha verificada + publicidad incluida</b> — tu presencia completa en Glowcheck desde el día uno</span></li>
+            <li><span class="pro-ck">✓</span> <span><b>Posicionamiento premium</b> — tu clínica como referente verificado en las búsquedas de tu zona</span></li>
+            <li><span class="pro-ck">✓</span> <span><b>Campañas de Google optimizadas</b> — Búsqueda, Maps, YouTube, Display y Gmail</span></li>
+            <li><span class="pro-ck">✓</span> <span><b>Gestor dedicado</b> + informe mensual de resultados</span></li>
+            <li><span class="pro-ck">✓</span> <span><b>Soporte prioritario</b> por WhatsApp (&lt;4h)</span></li>
+          </ul>
+        </div>
+        <div class="pro-cta-block">
+          <div class="pro-price-info">
+            <span class="pro-price-lbl">Desde</span>
+            <span class="pro-price-num">349€</span>
+            <span class="pro-price-suf">/ mes · sin permanencia</span>
+          </div>
+          <div class="pro-allin">
+            <span class="pro-allin-t">✓ Este precio lo incluye todo</span>
+            <p>La <b>inversión publicitaria</b> y el <b>IVA</b> salen de aquí. Sin extras ni costes ocultos.</p>
+          </div>
+          <p class="pro-price-note">Varía según zona y objetivos. Sin permanencia, como todo en Glowcheck.</p>
+          <button class="pro-cta-btn" onclick="goTalk()">Hablar con Glowcheck →</button>
+          <p class="pro-cta-note">Hablamos por WhatsApp · sin compromiso</p>
         </div>
       </div>
     </div>
@@ -674,7 +689,7 @@ body{
 <section class="fcta">
   <div class="fcta-box">
     <span class="s-label" style="color:var(--yellow); display:block; margin-bottom:14px;">Empieza hoy</span>
-    <h2>Cada día sin Glowcheck son<br><span>8 conversaciones</span> que no llegan a tu WhatsApp.</h2>
+    <h2>Cada mes sin Glowcheck son<br><span>al menos 4 clientes</span> que se van a otra clínica.</h2>
     <div class="fcta-stats">
       <div class="fcta-stat">
         <div class="fcta-stat-num">19€</div>
@@ -685,11 +700,11 @@ body{
         <div class="fcta-stat-lbl">para estar activo</div>
       </div>
       <div class="fcta-stat">
-        <div class="fcta-stat-num">8+</div>
-        <div class="fcta-stat-lbl">WhatsApp al mes</div>
+        <div class="fcta-stat-num">4+</div>
+        <div class="fcta-stat-lbl">clientes nuevos/mes</div>
       </div>
     </div>
-    <p>Pago seguro Stripe. Cancelas cuando quieras. Primeros contactos en menos de 5 días.</p>
+    <p>Basado en los datos medidos de nuestras clínicas activas. Pago seguro Stripe. Cancelas cuando quieras. Primeros contactos en menos de 5 días.</p>
     <div class="fcta-actions">
       <a href="#packs" class="btn-primary">Empezar ahora por 19€ →</a>
     </div>
